@@ -16,6 +16,7 @@ import { PlaylistDetailView } from "./views/PlaylistDetailView";
 import { AlbumDetailView } from "./views/AlbumDetailView";
 import { ArtistView } from "./views/ArtistView";
 import { usePlayerStore } from "./store/player-store";
+import { useRemotePolling } from "./hooks/use-remote-polling";
 
 function AppLayout({ playback }: { playback: ReturnType<typeof usePlayback> }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -64,6 +65,7 @@ export default function App() {
   const playback = usePlayback();
   const [miniMode, setMiniMode] = useState(false);
   useTheme();
+  useRemotePolling();
 
   if (!isAuthenticated) {
     return <LoginView onLogin={login} />;
