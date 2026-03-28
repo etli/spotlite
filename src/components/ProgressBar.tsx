@@ -1,4 +1,5 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
+import { usePlayerStore } from "../store/player-store";
 
 interface ProgressBarProps {
   progressMs: number;
@@ -15,7 +16,25 @@ function formatTime(ms: number): string {
 
 export function ProgressBar({ progressMs, durationMs, onSeek }: ProgressBarProps) {
   const barRef = useRef<HTMLDivElement>(null);
-  const percent = durationMs > 0 ? (progressMs / durationMs) * 100 : 0;
+  const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const [displayMs, setDisplayMs] = useState(progressMs);
+
+  useEffect(() => {
+    setDisplayMs(progressMs);
+  }, [progressMs]);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const interval = setInterval(() => {
+      setDisplayMs((prev) => {
+        const next = prev + 250;
+        return next > durationMs ? durationMs : next;
+      });
+    }, 250);
+    return () => clearInterval(interval);
+  }, [isPlaying, durationMs]);
+
+  const percent = durationMs > 0 ? (displayMs / durationMs) * 100 : 0;
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -29,20 +48,11 @@ export function ProgressBar({ progressMs, durationMs, onSeek }: ProgressBarProps
 
   return (
     <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
-      <span className="w-10 text-right">{formatTime(progressMs)}</span>
-      <div
-        ref={barRef}
-        className="group relative h-1.5 flex-1 cursor-pointer rounded-full bg-white/30"
-        onClick={handleClick}
-      >
-        <div
-          className="absolute left-0 top-0 h-full rounded-full bg-[var(--theme-accent)]"
-          style={{ width: `${percent}%` }}
-        />
-        <div
-          className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white opacity-0 shadow-md transition-opacity group-hover:opacity-100"
-          style={{ left: `${percent}%`, marginLeft: "-6px" }}
-        />
+      <span className="w-10 text-right">{formatTime(displayMs)}</span>
+      <div ref={barRef} className="group relative h-1.5 flex-1 cursor-pointer rounded-full bg-white/30" onClick={handleClick}>
+        <div className="absolute left-0 top-0 h-full rounded-full bg-[var(--theme-accent)]" style={{ width: `${percent}%` }} />
+        <div className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white opacity-0 shadow-md transition-opacity group-hover:opacity-100"
+          style={{ left: `${percent}%`, marginLeft: "-6px" }} />
       </div>
       <span className="w-10">{formatTime(durationMs)}</span>
     </div>
