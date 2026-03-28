@@ -7,11 +7,11 @@ describe("rgbToHsl", () => {
     expect(h).toBeCloseTo(0); expect(s).toBeCloseTo(100); expect(l).toBeCloseTo(50);
   });
   it("converts white", () => {
-    const [h, s, l] = rgbToHsl(255, 255, 255);
+    const [_h, s, l] = rgbToHsl(255, 255, 255);
     expect(s).toBeCloseTo(0); expect(l).toBeCloseTo(100);
   });
   it("converts a mid-tone color", () => {
-    const [h, s, l] = rgbToHsl(100, 150, 200);
+    const [h, _s, _l] = rgbToHsl(100, 150, 200);
     expect(h).toBeGreaterThan(200); expect(h).toBeLessThan(220);
   });
 });

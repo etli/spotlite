@@ -8,7 +8,7 @@ interface AlbumCardProps {
   linkTo: string;
 }
 
-export function AlbumCard({ id, name, imageUrl, subtitle, linkTo }: AlbumCardProps) {
+export function AlbumCard({ name, imageUrl, subtitle, linkTo }: AlbumCardProps) {
   return (
     <Link to={linkTo} className="group flex flex-col gap-2 rounded-2xl p-3 transition-all hover:bg-white/30">
       <div className="aspect-square overflow-hidden rounded-xl">

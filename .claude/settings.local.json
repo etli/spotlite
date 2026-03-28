@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/Users/lizzie/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/brainstorming/scripts/start-server.sh --project-dir /Users/lizzie/spotlite)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm create:*)"
+    ]
+  }
+}

@@ -54,7 +54,7 @@ describe("exchangeCode", () => {
 
   it("sends correct POST body and returns tokens", async () => {
     const mockResponse = { access_token: "access_123", refresh_token: "refresh_456", expires_in: 3600 };
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockResponse) });
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockResponse) });
 
     const result = await exchangeCode("auth_code", "verifier_123", "client_id", "http://localhost:5173/callback");
 
@@ -76,7 +76,7 @@ describe("refreshAccessToken", () => {
 
   it("sends correct refresh request", async () => {
     const mockResponse = { access_token: "new_access", refresh_token: "new_refresh", expires_in: 3600 };
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockResponse) });
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockResponse) });
 
     const result = await refreshAccessToken("old_refresh", "client_id");
 

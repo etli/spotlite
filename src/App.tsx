@@ -19,7 +19,7 @@ import { usePlayerStore } from "./store/player-store";
 import { useRemotePolling } from "./hooks/use-remote-polling";
 
 function AppLayout({ playback }: { playback: ReturnType<typeof usePlayback> }) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, _setSidebarCollapsed] = useState(false);
   const [showDevices, setShowDevices] = useState(false);
   const [showNowPlaying, setShowNowPlaying] = useState(false);
   const { devices, transferPlayback } = useDevices();
