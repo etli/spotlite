@@ -54,4 +54,14 @@ describe("LibraryView", () => {
     );
     expect(screen.getByText("Liked Songs")).toBeInTheDocument();
   });
+
+  it("renders Liked Songs title in a p element below the image square", () => {
+    render(
+      <MemoryRouter>
+        <LibraryView />
+      </MemoryRouter>
+    );
+    const title = screen.getByText("Liked Songs");
+    expect(title.tagName).toBe("P");
+  });
 });

@@ -55,10 +55,16 @@ export function LibraryView() {
 
       {activeTab === "playlists" && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          <Link to="/liked" className="group flex flex-col gap-2 rounded-2xl bg-gradient-to-br from-purple-400 to-violet-600 p-3 shadow-md transition-all hover:scale-[1.02] hover:shadow-lg">
-            <div className="flex aspect-square items-center justify-center rounded-xl text-4xl">💜</div>
-            <div className="px-1">
-              <p className="truncate text-sm font-medium text-white">Liked Songs</p>
+          <Link
+            to="/liked"
+            className="group flex flex-col gap-2 rounded-2xl p-3 transition-all hover:bg-white/30"
+          >
+            <div className="aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-purple-400 to-violet-600 flex items-center justify-center text-4xl">
+              💜
+            </div>
+            <div className="min-w-0 px-1">
+              <p className="truncate text-sm font-medium text-[var(--color-text-primary)]">Liked Songs</p>
+              <p className="truncate text-xs text-[var(--color-text-secondary)]">Liked tracks</p>
             </div>
           </Link>
           {playlists.map((pl) => (
