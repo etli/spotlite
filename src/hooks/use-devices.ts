@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type { SpotifyDevice } from "../types/spotify";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
@@ -7,11 +7,13 @@ import { usePlayerStore } from "../store/player-store";
 export function useDevices() {
   const [devices, setDevices] = useState<SpotifyDevice[]>([]);
   const accessToken = useAuthStore((s) => s.accessToken);
-  const setDevice = usePlayerStore((s) => s.setDevice);
 
-  const api = createSpotifyApi(
-    () => useAuthStore.getState().accessToken,
-    () => useAuthStore.getState().logout(),
+  const api = useMemo(
+    () => createSpotifyApi(
+      () => useAuthStore.getState().accessToken,
+      () => useAuthStore.getState().logout(),
+    ),
+    []
   );
 
   const fetchDevices = useCallback(async () => {
@@ -20,15 +22,15 @@ export function useDevices() {
       const data = await api.get<{ devices: SpotifyDevice[] }>("/v1/me/player/devices");
       setDevices(data.devices);
     } catch { /* non-critical */ }
-  }, [accessToken]);
+  }, [accessToken, api]);
 
   const transferPlayback = useCallback(async (deviceId: string, deviceName: string) => {
     try {
       await api.put("/v1/me/player", { device_ids: [deviceId] });
       const isLocal = deviceName === "Spotlite";
-      setDevice(deviceId, deviceName, isLocal);
+      usePlayerStore.getState().setDevice(deviceId, deviceName, isLocal);
     } catch { /* transfer failed */ }
-  }, [api, setDevice]);
+  }, [api]);
 
   useEffect(() => {
     if (!accessToken) return;

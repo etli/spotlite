@@ -10,6 +10,8 @@ import type { SpotifyTrack, SpotifyPaginated } from "../types/spotify";
 
 export function LikedSongsView() {
   const [tracks, setTracks] = useState<SpotifyTrack[]>([]);
+  const [total, setTotal] = useState<number | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const navigate = useNavigate();
   const { menuState, handleContextMenu, closeMenu } = useTrackContextMenu();
@@ -24,7 +26,10 @@ export function LikedSongsView() {
 
   useEffect(() => {
     api.get<SpotifyPaginated<{ track: SpotifyTrack }>>("/v1/me/tracks", { limit: "50" })
-      .then((data) => setTracks(data.items.map((i) => i.track)))
+      .then((data) => {
+        setTracks(data.items.map((i) => i.track));
+        setTotal(data.total);
+      })
       .catch(() => {});
   }, [api]);
 
@@ -37,6 +42,21 @@ export function LikedSongsView() {
     const deviceId = usePlayerStore.getState().activeDeviceId;
     const params = deviceId ? { device_id: deviceId } : undefined;
     await api.put("/v1/me/player/play", { uris: [uri] }, params);
+  };
+
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const data = await api.get<SpotifyPaginated<{ track: SpotifyTrack }>>("/v1/me/tracks", {
+        limit: "50",
+        offset: String(tracks.length),
+      });
+      setTracks((prev) => [...prev, ...data.items.map((i) => i.track)]);
+    } catch {
+      // silently ignore
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   return (
@@ -55,7 +75,7 @@ export function LikedSongsView() {
         <div className="flex flex-col justify-end gap-2">
           <p className="text-xs uppercase tracking-wider text-[var(--color-text-muted)]">Playlist</p>
           <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">Liked Songs</h1>
-          <p className="text-sm text-[var(--color-text-secondary)]">{tracks.length} tracks</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">{total ?? tracks.length} tracks</p>
         </div>
       </div>
       <div className="flex flex-col">
@@ -70,6 +90,18 @@ export function LikedSongsView() {
           />
         ))}
       </div>
+      {total !== null && tracks.length < total && (
+        <div className="flex flex-col items-center gap-2 py-2">
+          <p className="text-xs text-[var(--color-text-muted)]">{tracks.length} of {total} tracks loaded</p>
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="rounded-full bg-white/30 px-6 py-2 text-sm text-[var(--color-text-secondary)] transition-all hover:bg-white/50 disabled:opacity-50"
+          >
+            {loadingMore ? "Loading..." : "Load 50 more"}
+          </button>
+        </div>
+      )}
       {menuState && (
         <TrackContextMenu
           track={menuState.track}

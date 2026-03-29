@@ -19,6 +19,9 @@ export function PlaylistDetailView() {
   };
   const [playlist, setPlaylist] = useState<SpotifyPlaylist | null>(null);
   const [tracks, setTracks] = useState<SpotifyPlaylistItem[]>([]);
+  const [fetchedOffset, setFetchedOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [showRename, setShowRename] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
@@ -36,8 +39,12 @@ export function PlaylistDetailView() {
   useEffect(() => {
     if (!id) return;
     api.get<SpotifyPlaylist>(`/v1/playlists/${id}`).then(setPlaylist).catch(() => {});
-    api.get<SpotifyPaginated<SpotifyPlaylistItem>>(`/v1/playlists/${id}/items`)
-      .then((data) => setTracks(data.items.filter((item) => item.item != null))).catch(() => {});
+    api.get<SpotifyPaginated<SpotifyPlaylistItem>>(`/v1/playlists/${id}/items`, { limit: "50" })
+      .then((data) => {
+        setTracks(data.items.filter((item) => item.item != null));
+        setFetchedOffset(data.items.length);
+        setHasMore(data.next !== null);
+      }).catch(() => {});
   }, [id, api]);
 
   if (!playlist) return null;
@@ -54,6 +61,24 @@ export function PlaylistDetailView() {
 
   const handleRemoveTrack = (trackId: string) => {
     setTracks((prev) => prev.filter((item) => item.item?.id !== trackId));
+  };
+
+  const loadMore = async () => {
+    if (!id) return;
+    setLoadingMore(true);
+    try {
+      const data = await api.get<SpotifyPaginated<SpotifyPlaylistItem>>(
+        `/v1/playlists/${id}/items`,
+        { limit: "50", offset: String(fetchedOffset) },
+      );
+      setTracks((prev) => [...prev, ...data.items.filter((item) => item.item != null)]);
+      setFetchedOffset((prev) => prev + data.items.length);
+      setHasMore(data.next !== null);
+    } catch {
+      // silently ignore
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -122,6 +147,17 @@ export function PlaylistDetailView() {
           />
         ))}
       </div>
+      {hasMore && (
+        <div className="flex justify-center py-2">
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="rounded-full bg-white/30 px-6 py-2 text-sm text-[var(--color-text-secondary)] transition-all hover:bg-white/50 disabled:opacity-50"
+          >
+            {loadingMore ? "Loading..." : "Load 50 more"}
+          </button>
+        </div>
+      )}
 
       {menuState && (
         <TrackContextMenu

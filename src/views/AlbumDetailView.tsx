@@ -17,6 +17,9 @@ export function AlbumDetailView() {
   };
   const [album, setAlbum] = useState<SpotifyAlbumFull | null>(null);
   const [saved, setSaved] = useState(false);
+  const [extraTracks, setExtraTracks] = useState<SpotifyTrack[]>([]);
+  const [hasMoreTracks, setHasMoreTracks] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const { menuState, handleContextMenu, closeMenu } = useTrackContextMenu();
 
@@ -32,6 +35,8 @@ export function AlbumDetailView() {
     if (!id) return;
     api.get<SpotifyAlbumFull>(`/v1/albums/${id}`).then((data) => {
       setAlbum(data);
+      setExtraTracks([]);
+      setHasMoreTracks(data.tracks.next !== null);
       api.get<boolean[]>("/v1/me/library/contains", { uris: data.uri })
         .then((results) => setSaved(results[0] ?? false))
         .catch(() => {});
@@ -59,6 +64,23 @@ export function AlbumDetailView() {
       }
     } catch {
       setSaved(!next);
+    }
+  };
+
+  const loadMoreTracks = async () => {
+    setLoadingMore(true);
+    const offset = album.tracks.items.length + extraTracks.length;
+    try {
+      const data = await api.get<SpotifyPaginated<SpotifyTrack>>(
+        `/v1/albums/${album.id}/tracks`,
+        { limit: "50", offset: String(offset) },
+      );
+      setExtraTracks((prev) => [...prev, ...data.items]);
+      setHasMoreTracks(data.next !== null);
+    } catch {
+      // silently ignore
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -104,7 +126,7 @@ export function AlbumDetailView() {
         </div>
       </div>
       <div className="flex flex-col">
-        {album.tracks.items.map((track, i) => (
+        {[...album.tracks.items, ...extraTracks].map((track, i) => (
           <TrackRow
             key={track.id}
             track={{ ...track, album }}
@@ -115,6 +137,17 @@ export function AlbumDetailView() {
           />
         ))}
       </div>
+      {hasMoreTracks && (
+        <div className="flex justify-center py-2">
+          <button
+            onClick={loadMoreTracks}
+            disabled={loadingMore}
+            className="rounded-full bg-white/30 px-6 py-2 text-sm text-[var(--color-text-secondary)] transition-all hover:bg-white/50 disabled:opacity-50"
+          >
+            {loadingMore ? "Loading..." : "Load 50 more"}
+          </button>
+        </div>
+      )}
       {menuState && (
         <TrackContextMenu
           track={menuState.track}

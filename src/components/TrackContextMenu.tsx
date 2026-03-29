@@ -97,14 +97,15 @@ export function TrackContextMenu({
     []
   );
 
-  // Fetch playlists once when the menu opens, not on every flyout hover
+  // Fetch playlists lazily — only when flyout first opens, skip if already loaded
   useEffect(() => {
+    if (!flyoutOpen || playlists.length > 0) return;
     const controller = new AbortController();
     api.get<SpotifyPaginated<SpotifyPlaylist>>("/v1/me/playlists", { limit: "50" }, controller.signal)
       .then((data) => setPlaylists(data.items.filter(Boolean)))
       .catch((err) => { if ((err as { name?: string }).name !== "AbortError") console.error("Failed to load playlists:", err); });
     return () => controller.abort();
-  }, [api]);
+  }, [flyoutOpen, api, playlists.length]);
 
   // Close on Escape
   useEffect(() => {

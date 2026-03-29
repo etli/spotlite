@@ -15,7 +15,6 @@ export function usePlayback() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const playerRef = useRef<SpotifyPlayer | null>(null);
   const deviceIdRef = useRef<string | null>(null);
-  const { setTrack, setPlaybackState, setDevice, setShuffle, setRepeat } = usePlayerStore();
 
   useEffect(() => {
     if (!accessToken) return;
@@ -36,7 +35,7 @@ export function usePlayback() {
       player.addListener("ready", ({ device_id }) => {
         console.log("Spotlite player ready, device_id:", device_id);
         deviceIdRef.current = device_id;
-        setDevice(device_id, DEVICE_NAME, true);
+        usePlayerStore.getState().setDevice(device_id, DEVICE_NAME, true);
       });
 
       player.addListener("not_ready", () => {
@@ -80,6 +79,7 @@ export function usePlayback() {
             album_type: "album",
           },
         };
+        const { setTrack, setPlaybackState, setShuffle, setRepeat } = usePlayerStore.getState();
         setTrack(spotifyTrack);
         setPlaybackState(!state.paused, state.position);
         setShuffle(state.shuffle);
@@ -99,7 +99,7 @@ export function usePlayback() {
       playerRef.current?.disconnect();
       playerRef.current = null;
     };
-  }, [accessToken, setTrack, setPlaybackState, setDevice, setShuffle, setRepeat]);
+  }, [accessToken]);
 
   const togglePlay = useCallback(() => playerRef.current?.togglePlay(), []);
   const nextTrack = useCallback(() => playerRef.current?.nextTrack(), []);
