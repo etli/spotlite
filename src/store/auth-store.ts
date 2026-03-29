@@ -4,7 +4,9 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   expiresAt: number | null;
+  country: string;
   setTokens: (accessToken: string, refreshToken: string, expiresIn: number) => void;
+  setCountry: (country: string) => void;
   logout: () => void;
   isAuthenticated: () => boolean;
   loadFromStorage: () => void;
@@ -14,6 +16,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   accessToken: null,
   refreshToken: null,
   expiresAt: null,
+  country: "US",
 
   setTokens: (accessToken, refreshToken, expiresIn) => {
     const expiresAt = Date.now() + expiresIn * 1000;
@@ -22,6 +25,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     localStorage.setItem("spotlite_refresh_token", refreshToken);
     localStorage.setItem("spotlite_expires_at", expiresAt.toString());
   },
+
+  setCountry: (country) => set({ country }),
 
   logout: () => {
     set({ accessToken: null, refreshToken: null, expiresAt: null });

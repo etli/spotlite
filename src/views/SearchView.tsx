@@ -19,13 +19,15 @@ export function SearchView() {
   const handleSearch = useCallback(async (query: string) => {
     if (!query) { setResults(null); return; }
     try {
-      const data = await api.get<SpotifySearchResult>("/v1/search", { q: query, type: "track,album,artist", limit: "20" });
+      const data = await api.get<SpotifySearchResult>("/v1/search", { q: query, type: "track,album,artist" });
       setResults(data);
     } catch {}
   }, []);
 
   const playTrack = async (uri: string) => {
-    await api.put("/v1/me/player/play", { uris: [uri] });
+    const deviceId = usePlayerStore.getState().activeDeviceId;
+    const params = deviceId ? { device_id: deviceId } : undefined;
+    await api.put("/v1/me/player/play", { uris: [uri] }, params);
   };
 
   return (
@@ -59,7 +61,7 @@ export function SearchView() {
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {results.artists.items.map((artist) => (
               <AlbumCard key={artist.id} id={artist.id} name={artist.name} imageUrl={artist.images?.[0]?.url}
-                subtitle={`${artist.followers.total.toLocaleString()} followers`} linkTo={`/artist/${artist.id}`} />
+                subtitle={`${(artist.followers?.total ?? 0).toLocaleString()} followers`} linkTo={`/artist/${artist.id}`} />
             ))}
           </div>
         </section>

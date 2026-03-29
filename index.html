@@ -9,6 +9,13 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Bridge: SDK calls this immediately on load, before React mounts.
+      // Store a promise that use-playback.ts resolves when ready.
+      window.__onSpotifyReady = new Promise(function(resolve) {
+        window.onSpotifyWebPlaybackSDKReady = resolve;
+      });
+    </script>
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
   </body>
 </html>

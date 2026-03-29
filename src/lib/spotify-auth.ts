@@ -6,6 +6,7 @@ export const SCOPES = [
   "playlist-read-private",
   "streaming",
   "user-read-private",
+  "user-read-email",
 ];
 
 export function generateCodeVerifier(): string {

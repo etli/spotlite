@@ -26,7 +26,9 @@ export function AlbumDetailView() {
   const playAlbum = async (trackUri?: string) => {
     const body: Record<string, unknown> = { context_uri: album.uri };
     if (trackUri) body.offset = { uri: trackUri };
-    await api.put("/v1/me/player/play", body);
+    const deviceId = usePlayerStore.getState().activeDeviceId;
+    const params = deviceId ? { device_id: deviceId } : undefined;
+    await api.put("/v1/me/player/play", body, params);
   };
 
   const imageUrl = album.images?.[0]?.url;

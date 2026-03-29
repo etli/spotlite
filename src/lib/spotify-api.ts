@@ -9,7 +9,13 @@ export function createSpotifyApi(
     if (!token) throw new Error("No access token available");
 
     let url = `${BASE_URL}${path}`;
-    if (params) url += `?${new URLSearchParams(params).toString()}`;
+    if (params) {
+      const queryString = Object.entries(params)
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join("&")
+        .replace(/%2C/gi, ",");
+      url += `?${queryString}`;
+    }
 
     const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
     const options: RequestInit = { headers };
@@ -23,14 +29,18 @@ export function createSpotifyApi(
 
     const response = await fetch(url, options);
     if (response.status === 401) { onTokenExpired(); throw new Error("Token expired"); }
-    if (!response.ok) throw new Error(`Spotify API error: ${response.status}`);
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`Spotify API ${response.status} ${method} ${url}`, errorBody);
+      throw new Error(`Spotify API error: ${response.status}`);
+    }
     if (response.status === 204) return undefined as T;
     return response.json();
   }
 
   return {
     get<T>(path: string, params?: Record<string, string>): Promise<T> { return request<T>("GET", path, params); },
-    put<T = void>(path: string, body?: unknown): Promise<T> { return request<T>("PUT", path, undefined, body); },
+    put<T = void>(path: string, body?: unknown, params?: Record<string, string>): Promise<T> { return request<T>("PUT", path, params, body); },
     post<T>(path: string, body?: unknown): Promise<T> { return request<T>("POST", path, undefined, body); },
   };
 }

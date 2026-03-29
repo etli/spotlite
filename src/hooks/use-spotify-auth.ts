@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from "react";
 import { useAuthStore } from "../store/auth-store";
+import { createSpotifyApi } from "../lib/spotify-api";
 import {
   generateCodeVerifier, generateCodeChallenge, buildAuthUrl, exchangeCode, refreshAccessToken,
 } from "../lib/spotify-auth";
@@ -49,6 +50,17 @@ export function useSpotifyAuth() {
     const url = buildAuthUrl(challenge, CLIENT_ID, REDIRECT_URI);
     window.location.href = url;
   }, []);
+
+  // Fetch user profile to get country
+  useEffect(() => {
+    if (!accessToken || !isAuthenticated()) return;
+    const api = createSpotifyApi(() => accessToken, () => {});
+    api.get<{ country?: string }>("/v1/me").then((user) => {
+      if (user.country) {
+        useAuthStore.getState().setCountry(user.country);
+      }
+    }).catch(() => {});
+  }, [accessToken]);
 
   return { isAuthenticated: isAuthenticated(), accessToken, login, logout };
 }

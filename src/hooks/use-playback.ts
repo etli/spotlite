@@ -5,6 +5,12 @@ import type { SpotifyTrack } from "../types/spotify";
 
 const DEVICE_NAME = "Spotlite";
 
+declare global {
+  interface Window {
+    __onSpotifyReady: Promise<void>;
+  }
+}
+
 export function usePlayback() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const playerRef = useRef<SpotifyPlayer | null>(null);
@@ -13,23 +19,65 @@ export function usePlayback() {
 
   useEffect(() => {
     if (!accessToken) return;
+
+    let cancelled = false;
+
     const initPlayer = () => {
+      if (cancelled) return;
       const player = new window.Spotify.Player({
         name: DEVICE_NAME,
-        getOAuthToken: (cb) => { const token = useAuthStore.getState().accessToken; if (token) cb(token); },
+        getOAuthToken: (cb) => {
+          const token = useAuthStore.getState().accessToken;
+          if (token) cb(token);
+        },
         volume: usePlayerStore.getState().volume / 100,
       });
-      player.addListener("ready", ({ device_id }) => { deviceIdRef.current = device_id; setDevice(device_id, DEVICE_NAME, true); });
-      player.addListener("not_ready", () => { deviceIdRef.current = null; });
+
+      player.addListener("ready", ({ device_id }) => {
+        console.log("Spotlite player ready, device_id:", device_id);
+        deviceIdRef.current = device_id;
+        setDevice(device_id, DEVICE_NAME, true);
+      });
+
+      player.addListener("not_ready", () => {
+        deviceIdRef.current = null;
+      });
+
+      player.addListener("initialization_error", ({ message }) => {
+        console.error("Spotify SDK init error:", message);
+      });
+
+      player.addListener("authentication_error", ({ message }) => {
+        console.error("Spotify SDK auth error:", message);
+      });
+
+      player.addListener("account_error", ({ message }) => {
+        console.error("Spotify SDK account error:", message);
+      });
+
       player.addListener("player_state_changed", (state) => {
         if (!state) return;
         const track = state.track_window.current_track;
         const spotifyTrack: SpotifyTrack = {
-          id: track.id, name: track.name, uri: track.uri, duration_ms: track.duration_ms, track_number: 1,
-          artists: track.artists.map((a) => ({ id: a.uri.split(":")[2], name: a.name, uri: a.uri })),
+          id: track.id,
+          name: track.name,
+          uri: track.uri,
+          duration_ms: track.duration_ms,
+          track_number: 1,
+          artists: track.artists.map((a) => ({
+            id: a.uri.split(":")[2],
+            name: a.name,
+            uri: a.uri,
+          })),
           album: {
-            id: track.album.uri.split(":")[2], name: track.album.name, images: track.album.images,
-            artists: [], release_date: "", total_tracks: 0, uri: track.album.uri, album_type: "album",
+            id: track.album.uri.split(":")[2],
+            name: track.album.name,
+            images: track.album.images,
+            artists: [],
+            release_date: "",
+            total_tracks: 0,
+            uri: track.album.uri,
+            album_type: "album",
           },
         };
         setTrack(spotifyTrack);
@@ -38,12 +86,19 @@ export function usePlayback() {
         const repeatMap = { 0: "off", 1: "context", 2: "track" } as const;
         setRepeat(repeatMap[state.repeat_mode]);
       });
+
       player.connect();
       playerRef.current = player;
     };
-    if (window.Spotify) initPlayer();
-    else window.onSpotifyWebPlaybackSDKReady = initPlayer;
-    return () => { playerRef.current?.disconnect(); playerRef.current = null; };
+
+    // Wait for the SDK ready promise set up in index.html
+    window.__onSpotifyReady.then(initPlayer);
+
+    return () => {
+      cancelled = true;
+      playerRef.current?.disconnect();
+      playerRef.current = null;
+    };
   }, [accessToken, setTrack, setPlaybackState, setDevice, setShuffle, setRepeat]);
 
   const togglePlay = useCallback(() => playerRef.current?.togglePlay(), []);
@@ -55,5 +110,12 @@ export function usePlayback() {
     usePlayerStore.getState().setVolume(vol);
   }, []);
 
-  return { deviceId: deviceIdRef.current, togglePlay, nextTrack, previousTrack, seek, setVolume };
+  return {
+    deviceId: deviceIdRef.current,
+    togglePlay,
+    nextTrack,
+    previousTrack,
+    seek,
+    setVolume,
+  };
 }
