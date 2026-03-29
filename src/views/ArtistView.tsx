@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { AlbumCard } from "../components/AlbumCard";
@@ -7,6 +7,11 @@ import type { SpotifyArtist, SpotifyAlbumSimplified, SpotifyPaginated } from "..
 
 export function ArtistView() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const goBack = () => {
+    if (window.history.length <= 1) navigate("/");
+    else navigate(-1);
+  };
   const [artist, setArtist] = useState<SpotifyArtist | null>(null);
   const [albums, setAlbums] = useState<SpotifyAlbumSimplified[]>([]);
 
@@ -30,6 +35,13 @@ export function ArtistView() {
 
   return (
     <div className="flex flex-col gap-8">
+      <button
+        onClick={goBack}
+        aria-label="Go back"
+        className="flex w-fit items-center text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
+      >
+        ←
+      </button>
       <div className="flex items-end gap-6">
         {imageUrl && <img src={imageUrl} alt={artist.name} className="glow h-48 w-48 shrink-0 rounded-full object-cover" />}
         <div>

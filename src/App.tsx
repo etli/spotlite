@@ -1,16 +1,18 @@
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+// src/App.tsx
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import { useSpotifyAuth } from "./hooks/use-spotify-auth";
 import { usePlayback } from "./hooks/use-playback";
 import { useTheme } from "./hooks/use-theme";
 import { useDevices } from "./hooks/use-devices";
-import { Sidebar } from "./components/Sidebar";
+import { PanelShell } from "./components/PanelShell";
 import { PlayerBar } from "./components/PlayerBar";
 import { MiniPlayer } from "./components/MiniPlayer";
 import { NowPlaying } from "./components/NowPlaying";
 import { DevicePicker } from "./components/DevicePicker";
 import { LoginView } from "./views/LoginView";
 import { LibraryView } from "./views/LibraryView";
+import { LikedSongsView } from "./views/LikedSongsView";
 import { PlaylistDetailView } from "./views/PlaylistDetailView";
 import { AlbumDetailView } from "./views/AlbumDetailView";
 import { ArtistView } from "./views/ArtistView";
@@ -18,7 +20,6 @@ import { usePlayerStore } from "./store/player-store";
 import { useRemotePolling } from "./hooks/use-remote-polling";
 
 function AppLayout({ playback }: { playback: ReturnType<typeof usePlayback> }) {
-  const [sidebarCollapsed, _setSidebarCollapsed] = useState(false);
   const [showDevices, setShowDevices] = useState(false);
   const [showNowPlaying, setShowNowPlaying] = useState(false);
   const { devices, transferPlayback } = useDevices();
@@ -26,13 +27,8 @@ function AppLayout({ playback }: { playback: ReturnType<typeof usePlayback> }) {
 
   return (
     <div className="flex h-screen flex-col">
-      <div className="flex flex-1 gap-2 overflow-hidden p-2 pb-0">
-        <div className="hidden md:block">
-          <Sidebar collapsed={sidebarCollapsed} />
-        </div>
-        <main className="glass-panel flex-1 overflow-y-auto p-6">
-          <Outlet />
-        </main>
+      <div className="flex flex-1 overflow-hidden p-2 pb-0">
+        <PanelShell />
       </div>
       {showNowPlaying && (
         <NowPlaying playback={playback} onClose={() => setShowNowPlaying(false)} />
@@ -79,6 +75,7 @@ export default function App() {
       <Routes>
         <Route element={<AppLayout playback={playback} />}>
           <Route path="/" element={<LibraryView />} />
+          <Route path="/liked" element={<LikedSongsView />} />
           <Route path="/playlist/:id" element={<PlaylistDetailView />} />
           <Route path="/album/:id" element={<AlbumDetailView />} />
           <Route path="/artist/:id" element={<ArtistView />} />

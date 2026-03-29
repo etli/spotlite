@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { usePlayerStore } from "../store/player-store";
@@ -8,6 +8,11 @@ import type { SpotifyPlaylist, SpotifyPlaylistItem, SpotifyPaginated } from "../
 
 export function PlaylistDetailView() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const goBack = () => {
+    if (window.history.length <= 1) navigate("/");
+    else navigate(-1);
+  };
   const [playlist, setPlaylist] = useState<SpotifyPlaylist | null>(null);
   const [tracks, setTracks] = useState<SpotifyPlaylistItem[]>([]);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
@@ -38,6 +43,13 @@ export function PlaylistDetailView() {
 
   return (
     <div className="flex flex-col gap-6">
+      <button
+        onClick={goBack}
+        aria-label="Go back"
+        className="flex w-fit items-center text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
+      >
+        ←
+      </button>
       <div className="flex gap-6">
         {imageUrl && <img src={imageUrl} alt={playlist.name} className="glow h-48 w-48 shrink-0 rounded-2xl object-cover" />}
         <div className="flex flex-col justify-end gap-2">
