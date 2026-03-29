@@ -4,7 +4,7 @@ export function createSpotifyApi(
   getToken: () => string | null,
   onTokenExpired: () => void,
 ) {
-  async function request<T>(method: string, path: string, params?: Record<string, string>, body?: unknown): Promise<T> {
+  async function request<T>(method: string, path: string, params?: Record<string, string>, body?: unknown, signal?: AbortSignal): Promise<T> {
     const token = getToken();
     if (!token) throw new Error("No access token available");
 
@@ -18,7 +18,7 @@ export function createSpotifyApi(
     }
 
     const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
-    const options: RequestInit = { headers };
+    const options: RequestInit = { headers, signal };
 
     if (body !== undefined) {
       headers["Content-Type"] = "application/json";
@@ -41,7 +41,7 @@ export function createSpotifyApi(
   }
 
   return {
-    get<T>(path: string, params?: Record<string, string>): Promise<T> { return request<T>("GET", path, params); },
+    get<T>(path: string, params?: Record<string, string>, signal?: AbortSignal): Promise<T> { return request<T>("GET", path, params, undefined, signal); },
     put<T = void>(path: string, body?: unknown, params?: Record<string, string>): Promise<T> { return request<T>("PUT", path, params, body); },
     post<T>(path: string, body?: unknown): Promise<T> { return request<T>("POST", path, undefined, body); },
     delete<T = void>(path: string, body?: unknown, params?: Record<string, string>): Promise<T> { return request<T>("DELETE", path, params, body); },

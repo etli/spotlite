@@ -99,9 +99,11 @@ export function TrackContextMenu({
 
   // Fetch playlists once when the menu opens, not on every flyout hover
   useEffect(() => {
-    api.get<SpotifyPaginated<SpotifyPlaylist>>("/v1/me/playlists", { limit: "50" })
+    const controller = new AbortController();
+    api.get<SpotifyPaginated<SpotifyPlaylist>>("/v1/me/playlists", { limit: "50" }, controller.signal)
       .then((data) => setPlaylists(data.items.filter(Boolean)))
-      .catch((err) => { console.error("Failed to load playlists:", err); });
+      .catch((err) => { if ((err as { name?: string }).name !== "AbortError") console.error("Failed to load playlists:", err); });
+    return () => controller.abort();
   }, [api]);
 
   // Close on Escape

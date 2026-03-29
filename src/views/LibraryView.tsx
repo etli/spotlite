@@ -25,20 +25,25 @@ export function LibraryView() {
   );
 
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+    const ignore = (err: unknown) => { if ((err as { name?: string }).name !== "AbortError") console.error(err); };
+
     if (activeTab === "playlists") {
-      api.get<SpotifyPaginated<SpotifyPlaylist>>("/v1/me/playlists", { limit: "50" })
-        .then((data) => setPlaylists(data.items.filter((pl) => pl != null))).catch(() => {});
+      api.get<SpotifyPaginated<SpotifyPlaylist>>("/v1/me/playlists", { limit: "50" }, signal)
+        .then((data) => setPlaylists(data.items.filter((pl) => pl != null))).catch(ignore);
       if (likedCount === null) {
-        api.get<SpotifyPaginated<unknown>>("/v1/me/tracks", { limit: "1" })
-          .then((data) => setLikedCount(data.total)).catch(() => {});
+        api.get<SpotifyPaginated<unknown>>("/v1/me/tracks", { limit: "1" }, signal)
+          .then((data) => setLikedCount(data.total)).catch(ignore);
       }
     } else if (activeTab === "albums") {
-      api.get<SpotifyPaginated<{ album: SpotifyAlbumSimplified }>>("/v1/me/albums", { limit: "50" })
-        .then((data) => setAlbums(data.items.map((i) => i.album))).catch(() => {});
+      api.get<SpotifyPaginated<{ album: SpotifyAlbumSimplified }>>("/v1/me/albums", { limit: "50" }, signal)
+        .then((data) => setAlbums(data.items.map((i) => i.album))).catch(ignore);
     } else if (activeTab === "artists") {
-      api.get<{ artists: SpotifyPaginated<SpotifyArtist> }>("/v1/me/following", { type: "artist", limit: "50" })
-        .then((data) => setArtists(data.artists.items)).catch(() => {});
+      api.get<{ artists: SpotifyPaginated<SpotifyArtist> }>("/v1/me/following", { type: "artist", limit: "50" }, signal)
+        .then((data) => setArtists(data.artists.items)).catch(ignore);
     }
+    return () => controller.abort();
   }, [activeTab, api]);
 
   const tabs: { key: Tab; label: string }[] = [
