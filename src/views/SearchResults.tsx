@@ -90,7 +90,7 @@ export function SearchResults({ query }: { query: string }) {
                 id={artist.id}
                 name={artist.name}
                 imageUrl={artist.images?.[0]?.url}
-                subtitle={`${(artist.followers?.total ?? 0).toLocaleString()} followers`}
+                subtitle={artist.genres?.[0] ?? ""}
                 linkTo={`/artist/${artist.id}`}
               />
             ))}

@@ -3,11 +3,14 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SearchResults } from "../SearchResults";
 
+const mockGet = vi.fn().mockResolvedValue({});
+const mockPut = vi.fn();
+
 vi.mock("../../lib/spotify-api", () => ({
-  createSpotifyApi: () => ({
-    get: vi.fn().mockResolvedValue({}),
-    put: vi.fn(),
-  }),
+  createSpotifyApi: vi.fn(() => ({
+    get: mockGet,
+    put: mockPut,
+  })),
 }));
 
 vi.mock("../../store/auth-store", () => ({
@@ -24,6 +27,7 @@ vi.mock("../../store/player-store", () => ({
 describe("SearchResults", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGet.mockResolvedValue({});
   });
 
   it("shows empty state when query is empty", () => {
@@ -33,5 +37,26 @@ describe("SearchResults", () => {
       </MemoryRouter>
     );
     expect(screen.getByText("Search for your favorite music")).toBeInTheDocument();
+  });
+
+  it("does not show follower count for artists in results", async () => {
+    mockGet.mockResolvedValueOnce({
+      artists: {
+        items: [
+          { id: "a1", name: "Test Artist", images: [], followers: { total: 999 }, genres: ["pop"] },
+        ],
+      },
+      tracks: { items: [] },
+      albums: { items: [] },
+    });
+
+    render(
+      <MemoryRouter>
+        <SearchResults query="test" />
+      </MemoryRouter>
+    );
+
+    await screen.findByText("Test Artist");
+    expect(screen.queryByText(/followers/i)).not.toBeInTheDocument();
   });
 });
