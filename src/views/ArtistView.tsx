@@ -3,8 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { AlbumCard } from "../components/AlbumCard";
-import { TrackContextMenu } from "../components/TrackContextMenu";
-import { useTrackContextMenu } from "../hooks/use-track-context-menu";
 import type { SpotifyArtist, SpotifyAlbumSimplified, SpotifyPaginated } from "../types/spotify";
 
 export function ArtistView() {
@@ -17,7 +15,6 @@ export function ArtistView() {
   const [artist, setArtist] = useState<SpotifyArtist | null>(null);
   const [albums, setAlbums] = useState<SpotifyAlbumSimplified[]>([]);
   const [following, setFollowing] = useState(false);
-  const { menuState, closeMenu } = useTrackContextMenu();
 
   const api = useMemo(
     () => createSpotifyApi(
@@ -90,14 +87,6 @@ export function ArtistView() {
             ))}
           </div>
         </section>
-      )}
-      {menuState && (
-        <TrackContextMenu
-          track={menuState.track}
-          x={menuState.x}
-          y={menuState.y}
-          onClose={closeMenu}
-        />
       )}
     </div>
   );

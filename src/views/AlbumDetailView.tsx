@@ -79,7 +79,12 @@ export function AlbumDetailView() {
           <p className="text-xs uppercase tracking-wider text-[var(--color-text-muted)]">{album.album_type}</p>
           <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">{album.name}</h1>
           <p className="text-sm text-[var(--color-text-secondary)]">
-            {album.artists.map((a) => (<Link key={a.id} to={`/artist/${a.id}`} className="hover:underline">{a.name}</Link>))}
+            {album.artists.map((a, i) => (
+              <span key={a.id}>
+                {i > 0 && ", "}
+                <Link to={`/artist/${a.id}`} className="hover:underline">{a.name}</Link>
+              </span>
+            ))}
             {" · "}{album.release_date.split("-")[0]}{" · "}{album.total_tracks} tracks
           </p>
           <div className="mt-2 flex items-center gap-3">
