@@ -42,6 +42,7 @@ export function createSpotifyApi(
     get<T>(path: string, params?: Record<string, string>): Promise<T> { return request<T>("GET", path, params); },
     put<T = void>(path: string, body?: unknown, params?: Record<string, string>): Promise<T> { return request<T>("PUT", path, params, body); },
     post<T>(path: string, body?: unknown): Promise<T> { return request<T>("POST", path, undefined, body); },
+    delete<T = void>(path: string, body?: unknown, params?: Record<string, string>): Promise<T> { return request<T>("DELETE", path, params, body); },
   };
 }
 

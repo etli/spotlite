@@ -42,4 +42,14 @@ describe("createSpotifyApi", () => {
     await api.get("/v1/search", { q: "test", type: "track" });
     expect(fetch).toHaveBeenCalledWith("https://api.spotify.com/v1/search?q=test&type=track", expect.any(Object));
   });
+
+  it("sends DELETE requests with JSON body", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 204 });
+    await api.delete("/v1/me/library", { uris: ["spotify:album:abc"] });
+    expect(fetch).toHaveBeenCalledWith("https://api.spotify.com/v1/me/library", {
+      method: "DELETE",
+      headers: { Authorization: "Bearer valid_token", "Content-Type": "application/json" },
+      body: JSON.stringify({ uris: ["spotify:album:abc"] }),
+    });
+  });
 });
