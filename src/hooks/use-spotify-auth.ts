@@ -51,14 +51,13 @@ export function useSpotifyAuth() {
     window.location.href = url;
   }, []);
 
-  // Fetch user profile to get country
+  // Fetch user profile to get country and userId
   useEffect(() => {
     if (!accessToken || !isAuthenticated()) return;
     const api = createSpotifyApi(() => accessToken, () => {});
-    api.get<{ country?: string }>("/v1/me").then((user) => {
-      if (user.country) {
-        useAuthStore.getState().setCountry(user.country);
-      }
+    api.get<{ country?: string; id?: string }>("/v1/me").then((user) => {
+      if (user.country) useAuthStore.getState().setCountry(user.country);
+      if (user.id) useAuthStore.getState().setUserId(user.id);
     }).catch(() => {});
   }, [accessToken]);
 
