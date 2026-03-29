@@ -26,4 +26,5 @@ dist-ssr
 .env
 .env.local
 .superpowers/
+.worktrees/
 src-tauri/target/
