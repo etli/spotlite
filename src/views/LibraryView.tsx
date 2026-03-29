@@ -3,15 +3,18 @@ import { Link } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { AlbumCard } from "../components/AlbumCard";
+import { CreatePlaylistModal } from "../components/CreatePlaylistModal";
 import type { SpotifyPlaylist, SpotifyAlbumSimplified, SpotifyArtist, SpotifyPaginated } from "../types/spotify";
 
 type Tab = "playlists" | "albums" | "artists";
 
 export function LibraryView() {
   const [activeTab, setActiveTab] = useState<Tab>("playlists");
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
   const [albums, setAlbums] = useState<SpotifyAlbumSimplified[]>([]);
   const [artists, setArtists] = useState<SpotifyArtist[]>([]);
+  const [likedCount, setLikedCount] = useState<number | null>(null);
 
   const api = useMemo(
     () => createSpotifyApi(
@@ -25,6 +28,10 @@ export function LibraryView() {
     if (activeTab === "playlists") {
       api.get<SpotifyPaginated<SpotifyPlaylist>>("/v1/me/playlists", { limit: "50" })
         .then((data) => setPlaylists(data.items.filter((pl) => pl != null))).catch(() => {});
+      if (likedCount === null) {
+        api.get<SpotifyPaginated<unknown>>("/v1/me/tracks", { limit: "1" })
+          .then((data) => setLikedCount(data.total)).catch(() => {});
+      }
     } else if (activeTab === "albums") {
       api.get<SpotifyPaginated<{ album: SpotifyAlbumSimplified }>>("/v1/me/albums", { limit: "50" })
         .then((data) => setAlbums(data.items.map((i) => i.album))).catch(() => {});
@@ -42,7 +49,7 @@ export function LibraryView() {
 
   return (
     <div>
-      <div className="mb-6 flex gap-2">
+      <div className="mb-6 flex items-center gap-2">
         {tabs.map((tab) => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
             className={`rounded-full px-4 py-1.5 text-sm transition-all ${
@@ -51,6 +58,14 @@ export function LibraryView() {
                 : "bg-white/30 text-[var(--color-text-secondary)] hover:bg-white/50"
             }`}>{tab.label}</button>
         ))}
+        {activeTab === "playlists" && (
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="ml-auto rounded-full bg-white/30 px-4 py-1.5 text-sm text-[var(--color-text-secondary)] transition-all hover:bg-white/50"
+          >
+            + New
+          </button>
+        )}
       </div>
 
       {activeTab === "playlists" && (
@@ -64,7 +79,7 @@ export function LibraryView() {
             </div>
             <div className="min-w-0 px-1">
               <p className="truncate text-sm font-medium text-[var(--color-text-primary)]">Liked Songs</p>
-              <p className="truncate text-xs text-[var(--color-text-secondary)]">Liked tracks</p>
+              <p className="truncate text-xs text-[var(--color-text-secondary)]">{likedCount !== null ? `${likedCount} tracks` : ""}</p>
             </div>
           </Link>
           {playlists.map((pl) => (
@@ -87,9 +102,18 @@ export function LibraryView() {
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {artists.map((artist) => (
             <AlbumCard key={artist.id} id={artist.id} name={artist.name} imageUrl={artist.images?.[0]?.url}
-              subtitle={`${(artist.followers?.total ?? 0).toLocaleString()} followers`} linkTo={`/artist/${artist.id}`} />
+              subtitle={artist.genres?.[0] ?? ""} linkTo={`/artist/${artist.id}`} />
           ))}
         </div>
+      )}
+      {showCreateModal && (
+        <CreatePlaylistModal
+          onCreated={(playlist) => {
+            setPlaylists((prev) => [playlist, ...prev]);
+            setShowCreateModal(false);
+          }}
+          onCancel={() => setShowCreateModal(false)}
+        />
       )}
     </div>
   );
