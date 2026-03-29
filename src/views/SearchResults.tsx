@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { AlbumCard } from "../components/AlbumCard";
 import { TrackRow } from "../components/TrackRow";
+import { TrackContextMenu } from "../components/TrackContextMenu";
+import { useTrackContextMenu } from "../hooks/use-track-context-menu";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { usePlayerStore } from "../store/player-store";
@@ -9,6 +11,7 @@ import type { SpotifySearchResult } from "../types/spotify";
 export function SearchResults({ query, onNavigate }: { query: string; onNavigate?: () => void }) {
   const [results, setResults] = useState<SpotifySearchResult | null>(null);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
+  const { menuState, handleContextMenu, closeMenu } = useTrackContextMenu();
 
   const api = useMemo(
     () => createSpotifyApi(
@@ -58,6 +61,7 @@ export function SearchResults({ query, onNavigate }: { query: string; onNavigate
                 index={i}
                 isPlaying={currentTrack?.id === track.id}
                 onPlay={() => playTrack(track.uri)}
+                onContextMenu={handleContextMenu}
               />
             ))}
           </div>
@@ -108,6 +112,14 @@ export function SearchResults({ query, onNavigate }: { query: string; onNavigate
           <span className="mb-2 text-4xl">🔍</span>
           <p className="text-sm">Search for your favorite music</p>
         </div>
+      )}
+      {menuState && (
+        <TrackContextMenu
+          track={menuState.track}
+          x={menuState.x}
+          y={menuState.y}
+          onClose={closeMenu}
+        />
       )}
     </div>
   );
