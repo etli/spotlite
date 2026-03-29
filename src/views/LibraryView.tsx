@@ -1,23 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { AlbumCard } from "../components/AlbumCard";
-import type { SpotifyPlaylist, SpotifyAlbumSimplified, SpotifyTrack, SpotifyPaginated } from "../types/spotify";
-import { TrackRow } from "../components/TrackRow";
-import { usePlayerStore } from "../store/player-store";
+import type { SpotifyPlaylist, SpotifyAlbumSimplified, SpotifyArtist, SpotifyPaginated } from "../types/spotify";
 
-type Tab = "playlists" | "albums" | "liked";
+type Tab = "playlists" | "albums" | "artists";
 
 export function LibraryView() {
   const [activeTab, setActiveTab] = useState<Tab>("playlists");
   const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
   const [albums, setAlbums] = useState<SpotifyAlbumSimplified[]>([]);
-  const [likedSongs, setLikedSongs] = useState<SpotifyTrack[]>([]);
-  const currentTrack = usePlayerStore((s) => s.currentTrack);
+  const [artists, setArtists] = useState<SpotifyArtist[]>([]);
 
-  const api = createSpotifyApi(
-    () => useAuthStore.getState().accessToken,
-    () => useAuthStore.getState().logout(),
+  const api = useMemo(
+    () => createSpotifyApi(
+      () => useAuthStore.getState().accessToken,
+      () => useAuthStore.getState().logout(),
+    ),
+    []
   );
 
   useEffect(() => {
@@ -27,26 +28,17 @@ export function LibraryView() {
     } else if (activeTab === "albums") {
       api.get<SpotifyPaginated<{ album: SpotifyAlbumSimplified }>>("/v1/me/albums", { limit: "50" })
         .then((data) => setAlbums(data.items.map((i) => i.album))).catch(() => {});
-    } else if (activeTab === "liked") {
-      api.get<SpotifyPaginated<{ track: SpotifyTrack }>>("/v1/me/tracks", { limit: "50" })
-        .then((data) => setLikedSongs(data.items.map((i) => i.track))).catch(() => {});
+    } else if (activeTab === "artists") {
+      api.get<{ artists: SpotifyPaginated<SpotifyArtist> }>("/v1/me/following", { type: "artist", limit: "50" })
+        .then((data) => setArtists(data.artists.items)).catch(() => {});
     }
-  }, [activeTab]);
+  }, [activeTab, api]);
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "playlists", label: "Playlists" },
     { key: "albums", label: "Albums" },
-    { key: "liked", label: "Liked Songs" },
+    { key: "artists", label: "Artists" },
   ];
-
-  const playTrack = async (uri: string, contextUri?: string) => {
-    const body: Record<string, unknown> = {};
-    if (contextUri) { body.context_uri = contextUri; body.offset = { uri }; }
-    else { body.uris = [uri]; }
-    const deviceId = usePlayerStore.getState().activeDeviceId;
-    const params = deviceId ? { device_id: deviceId } : undefined;
-    await api.put("/v1/me/player/play", body, params);
-  };
 
   return (
     <div>
@@ -60,14 +52,22 @@ export function LibraryView() {
             }`}>{tab.label}</button>
         ))}
       </div>
+
       {activeTab === "playlists" && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <Link to="/liked" className="group flex flex-col gap-2 rounded-2xl bg-gradient-to-br from-purple-400 to-violet-600 p-3 shadow-md transition-all hover:scale-[1.02] hover:shadow-lg">
+            <div className="flex aspect-square items-center justify-center rounded-xl text-4xl">💜</div>
+            <div className="px-1">
+              <p className="truncate text-sm font-medium text-white">Liked Songs</p>
+            </div>
+          </Link>
           {playlists.map((pl) => (
             <AlbumCard key={pl.id} id={pl.id} name={pl.name} imageUrl={pl.images?.[0]?.url}
               subtitle={`${pl.items?.total ?? 0} tracks`} linkTo={`/playlist/${pl.id}`} />
           ))}
         </div>
       )}
+
       {activeTab === "albums" && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {albums.map((album) => (
@@ -76,11 +76,12 @@ export function LibraryView() {
           ))}
         </div>
       )}
-      {activeTab === "liked" && (
-        <div className="flex flex-col">
-          {likedSongs.map((track, i) => (
-            <TrackRow key={track.id} track={track} index={i} isPlaying={currentTrack?.id === track.id}
-              onPlay={() => playTrack(track.uri)} />
+
+      {activeTab === "artists" && (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {artists.map((artist) => (
+            <AlbumCard key={artist.id} id={artist.id} name={artist.name} imageUrl={artist.images?.[0]?.url}
+              subtitle={`${(artist.followers?.total ?? 0).toLocaleString()} followers`} linkTo={`/artist/${artist.id}`} />
           ))}
         </div>
       )}
