@@ -17,37 +17,39 @@ interface TrackContextMenuProps {
 
 function PlaylistFlyout({
   track,
+  api,
   onClose,
   onCreatePlaylist,
 }: {
   track: SpotifyTrack;
+  api: ReturnType<typeof createSpotifyApi>;
   onClose: () => void;
   onCreatePlaylist: () => void;
 }) {
   const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
 
-  const api = useMemo(
-    () => createSpotifyApi(
-      () => useAuthStore.getState().accessToken,
-      () => useAuthStore.getState().logout(),
-    ),
-    []
-  );
-
   useEffect(() => {
     api.get<SpotifyPaginated<SpotifyPlaylist>>("/v1/me/playlists", { limit: "50" })
       .then((data) => setPlaylists(data.items.filter(Boolean)))
-      .catch(() => {});
+      .catch((err) => { console.error("Failed to load playlists:", err); });
   }, [api]);
 
   const addToPlaylist = async (playlistId: string) => {
-    await api.post(`/v1/playlists/${playlistId}/items`, { uris: [track.uri] });
-    onClose();
+    try {
+      await api.post(`/v1/playlists/${playlistId}/items`, { uris: [track.uri] });
+      onClose();
+    } catch (err) {
+      console.error("Failed to add track to playlist:", err);
+    }
   };
 
   const addToLikedSongs = async () => {
-    await api.put("/v1/me/library", { uris: [track.uri] });
-    onClose();
+    try {
+      await api.put("/v1/me/library", { uris: [track.uri] });
+      onClose();
+    } catch (err) {
+      console.error("Failed to add track to Liked Songs:", err);
+    }
   };
 
   return (
@@ -132,9 +134,13 @@ export function TrackContextMenu({
 
   const handleRemove = async () => {
     if (!playlistId) return;
-    await api.delete(`/v1/playlists/${playlistId}/items`, { uris: [track.uri] });
-    onRemoveTrack?.();
-    onClose();
+    try {
+      await api.delete(`/v1/playlists/${playlistId}/items`, { uris: [track.uri] });
+      onRemoveTrack?.();
+      onClose();
+    } catch (err) {
+      console.error("Failed to remove track:", err);
+    }
   };
 
   const handleCreatePlaylistModal = () => {
@@ -143,9 +149,13 @@ export function TrackContextMenu({
   };
 
   const handlePlaylistCreated = async (playlist: SpotifyPlaylist) => {
-    await api.post(`/v1/playlists/${playlist.id}/items`, { uris: [track.uri] });
-    setShowCreateModal(false);
-    onClose();
+    try {
+      await api.post(`/v1/playlists/${playlist.id}/items`, { uris: [track.uri] });
+      setShowCreateModal(false);
+      onClose();
+    } catch (err) {
+      console.error("Failed to add track to playlist:", err);
+    }
   };
 
   return ReactDOM.createPortal(
@@ -170,6 +180,7 @@ export function TrackContextMenu({
           {flyoutOpen && (
             <PlaylistFlyout
               track={track}
+              api={api}
               onClose={onClose}
               onCreatePlaylist={handleCreatePlaylistModal}
             />

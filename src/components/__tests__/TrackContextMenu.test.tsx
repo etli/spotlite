@@ -65,4 +65,19 @@ describe("TrackContextMenu", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(onClose).toHaveBeenCalled();
   });
+
+  it("calls onClose when clicking outside the menu", () => {
+    const onClose = vi.fn();
+    renderMenu({ onClose });
+    fireEvent.mouseDown(document.body);
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("shows playlist flyout on mouseenter of Add to playlist item", async () => {
+    renderMenu();
+    const addToPlaylistItem = screen.getByText("Add to playlist").closest("div")!;
+    fireEvent.mouseEnter(addToPlaylistItem);
+    // The flyout renders a "Liked Songs" button (hardcoded)
+    expect(await screen.findByText(/Liked Songs/)).toBeInTheDocument();
+  });
 });
