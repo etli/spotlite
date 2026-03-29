@@ -4,6 +4,8 @@ import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { usePlayerStore } from "../store/player-store";
 import { TrackRow } from "../components/TrackRow";
+import { TrackContextMenu } from "../components/TrackContextMenu";
+import { useTrackContextMenu } from "../hooks/use-track-context-menu";
 import type { SpotifyAlbumFull } from "../types/spotify";
 
 export function AlbumDetailView() {
@@ -14,7 +16,9 @@ export function AlbumDetailView() {
     else navigate(-1);
   };
   const [album, setAlbum] = useState<SpotifyAlbumFull | null>(null);
+  const [saved, setSaved] = useState(false);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
+  const { menuState, handleContextMenu, closeMenu } = useTrackContextMenu();
 
   const api = useMemo(
     () => createSpotifyApi(
@@ -26,7 +30,12 @@ export function AlbumDetailView() {
 
   useEffect(() => {
     if (!id) return;
-    api.get<SpotifyAlbumFull>(`/v1/albums/${id}`).then(setAlbum).catch(() => {});
+    api.get<SpotifyAlbumFull>(`/v1/albums/${id}`).then((data) => {
+      setAlbum(data);
+      api.get<boolean[]>("/v1/me/library/contains", { uris: data.uri })
+        .then((results) => setSaved(results[0] ?? false))
+        .catch(() => {});
+    }).catch(() => {});
   }, [id, api]);
 
   if (!album) return null;
@@ -39,6 +48,20 @@ export function AlbumDetailView() {
     await api.put("/v1/me/player/play", body, params);
   };
 
+  const toggleSave = async () => {
+    const next = !saved;
+    setSaved(next);
+    try {
+      if (next) {
+        await api.put("/v1/me/library", { uris: [album.uri] });
+      } else {
+        await api.delete("/v1/me/library", { uris: [album.uri] });
+      }
+    } catch {
+      setSaved(!next);
+    }
+  };
+
   const imageUrl = album.images?.[0]?.url;
 
   return (
@@ -48,7 +71,7 @@ export function AlbumDetailView() {
         aria-label="Go back"
         className="flex w-fit items-center text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
       >
-        ←
+        ← Back
       </button>
       <div className="flex gap-6">
         {imageUrl && <img src={imageUrl} alt={album.name} className="glow h-48 w-48 shrink-0 rounded-2xl object-cover" />}
@@ -59,18 +82,42 @@ export function AlbumDetailView() {
             {album.artists.map((a) => (<Link key={a.id} to={`/artist/${a.id}`} className="hover:underline">{a.name}</Link>))}
             {" · "}{album.release_date.split("-")[0]}{" · "}{album.total_tracks} tracks
           </p>
-          <button onClick={() => playAlbum()}
-            className="mt-2 w-fit rounded-full bg-[var(--theme-accent)] px-6 py-2 text-sm font-medium text-white shadow-md transition-all hover:scale-105">
-            ▶ Play
-          </button>
+          <div className="mt-2 flex items-center gap-3">
+            <button
+              onClick={() => playAlbum()}
+              className="w-fit rounded-full bg-[var(--theme-accent)] px-6 py-2 text-sm font-medium text-white shadow-md transition-all hover:scale-105"
+            >
+              ▶ Play
+            </button>
+            <button
+              onClick={toggleSave}
+              className="w-fit rounded-full border border-[var(--theme-accent)] px-4 py-2 text-sm font-medium text-[var(--theme-accent)] transition-all hover:bg-[var(--theme-accent)]/10"
+            >
+              {saved ? "Saved ✓" : "Save"}
+            </button>
+          </div>
         </div>
       </div>
       <div className="flex flex-col">
         {album.tracks.items.map((track, i) => (
-          <TrackRow key={track.id} track={{ ...track, album }} index={i}
-            isPlaying={currentTrack?.id === track.id} onPlay={() => playAlbum(track.uri)} />
+          <TrackRow
+            key={track.id}
+            track={{ ...track, album }}
+            index={i}
+            isPlaying={currentTrack?.id === track.id}
+            onPlay={() => playAlbum(track.uri)}
+            onContextMenu={handleContextMenu}
+          />
         ))}
       </div>
+      {menuState && (
+        <TrackContextMenu
+          track={menuState.track}
+          x={menuState.x}
+          y={menuState.y}
+          onClose={closeMenu}
+        />
+      )}
     </div>
   );
 }
