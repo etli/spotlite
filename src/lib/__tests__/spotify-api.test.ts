@@ -14,7 +14,7 @@ describe("createSpotifyApi", () => {
   });
 
   it("sends GET requests with Authorization header", async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ items: [] }) });
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, text: () => Promise.resolve(JSON.stringify({ items: [] })) });
     await api.get("/v1/me/playlists");
     expect(fetch).toHaveBeenCalledWith("https://api.spotify.com/v1/me/playlists", {
       headers: { Authorization: "Bearer valid_token" },
@@ -22,7 +22,7 @@ describe("createSpotifyApi", () => {
   });
 
   it("sends PUT requests with JSON body", async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) });
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, text: () => Promise.resolve(JSON.stringify({})) });
     await api.put("/v1/me/player", { device_ids: ["abc"] });
     expect(fetch).toHaveBeenCalledWith("https://api.spotify.com/v1/me/player", {
       method: "PUT",
@@ -38,18 +38,17 @@ describe("createSpotifyApi", () => {
   });
 
   it("appends query params to GET requests", async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) });
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, text: () => Promise.resolve(JSON.stringify({})) });
     await api.get("/v1/search", { q: "test", type: "track" });
     expect(fetch).toHaveBeenCalledWith("https://api.spotify.com/v1/search?q=test&type=track", expect.any(Object));
   });
 
-  it("sends DELETE requests with JSON body", async () => {
+  it("sends DELETE requests with query params", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 204 });
-    await api.delete("/v1/me/library", { uris: ["spotify:album:abc"] });
-    expect(fetch).toHaveBeenCalledWith("https://api.spotify.com/v1/me/library", {
-      method: "DELETE",
-      headers: { Authorization: "Bearer valid_token", "Content-Type": "application/json" },
-      body: JSON.stringify({ uris: ["spotify:album:abc"] }),
-    });
+    await api.delete("/v1/me/library", undefined, { uris: "spotify:album:abc" });
+    expect(fetch).toHaveBeenCalledWith(
+      "https://api.spotify.com/v1/me/library?uris=spotify%3Aalbum%3Aabc",
+      { method: "DELETE", headers: { Authorization: "Bearer valid_token" } },
+    );
   });
 });

@@ -45,9 +45,9 @@ export function ArtistView() {
     setFollowing(next);
     try {
       if (next) {
-        await api.put("/v1/me/library", { uris: [artist.uri] });
+        await api.put("/v1/me/library", undefined, { uris: artist.uri });
       } else {
-        await api.delete("/v1/me/library", { uris: [artist.uri] });
+        await api.delete("/v1/me/library", undefined, { uris: artist.uri });
       }
     } catch {
       setFollowing(!next);

@@ -45,7 +45,7 @@ function PlaylistFlyout({
 
   const addToLikedSongs = async () => {
     try {
-      await api.put("/v1/me/library", { uris: [track.uri] });
+      await api.put("/v1/me/library", undefined, { uris: track.uri });
       onClose();
     } catch (err) {
       console.error("Failed to add track to Liked Songs:", err);

@@ -58,7 +58,7 @@ export function PlaylistDetailView() {
 
   const handleDelete = async () => {
     try {
-      await api.delete("/v1/me/library", { uris: [playlist.uri] });
+      await api.delete("/v1/me/library", undefined, { uris: playlist.uri });
       navigate("/");
     } catch (err) {
       console.error("Failed to delete playlist:", err);

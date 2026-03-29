@@ -53,9 +53,9 @@ export function AlbumDetailView() {
     setSaved(next);
     try {
       if (next) {
-        await api.put("/v1/me/library", { uris: [album.uri] });
+        await api.put("/v1/me/library", undefined, { uris: album.uri });
       } else {
-        await api.delete("/v1/me/library", { uris: [album.uri] });
+        await api.delete("/v1/me/library", undefined, { uris: album.uri });
       }
     } catch {
       setSaved(!next);

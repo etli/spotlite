@@ -35,7 +35,9 @@ export function createSpotifyApi(
       throw new Error(`Spotify API error: ${response.status}`);
     }
     if (response.status === 204) return undefined as T;
-    return response.json();
+    const text = await response.text();
+    if (!text) return undefined as T;
+    return JSON.parse(text) as T;
   }
 
   return {
