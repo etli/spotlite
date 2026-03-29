@@ -53,7 +53,7 @@ function PlaylistFlyout({
   };
 
   return (
-    <div className="absolute left-full top-0 ml-1 w-48 rounded-xl border border-white/40 bg-white/90 py-1 shadow-2xl backdrop-blur-md">
+    <div className="absolute left-full top-0 w-48 rounded-xl border border-white/40 bg-white/90 py-1 shadow-2xl backdrop-blur-md">
       <button
         onClick={addToLikedSongs}
         className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-[var(--color-text-primary)] hover:bg-white/50"
@@ -135,7 +135,7 @@ export function TrackContextMenu({
   const handleRemove = async () => {
     if (!playlistId) return;
     try {
-      await api.delete(`/v1/playlists/${playlistId}/items`, { uris: [track.uri] });
+      await api.delete(`/v1/playlists/${playlistId}/items`, undefined, { uris: track.uri });
       onRemoveTrack?.();
       onClose();
     } catch (err) {
