@@ -4,12 +4,14 @@
 
 ## Overview
 
-Four new feature areas:
+Six new feature areas:
 
 1. Right-click context menu on any track row
 2. Save album button on album pages
 3. Follow artist button on artist pages
 4. Create new playlists; remove tracks from playlists
+5. Rename playlist (modal, owned playlists only)
+6. Delete playlist with confirmation modal (owned playlists only)
 
 Plus a bug fix: remove the now-missing `followers` field from artist objects (removed in Spotify's Feb 2026 API update).
 
@@ -48,6 +50,11 @@ Note: `POST /users/{user_id}/playlists` was removed in Feb 2026 — `POST /me/pl
 ### Type fixes
 
 - Remove `followers?: { total: number }` from `SpotifyArtist` in `src/types/spotify.ts` — field was removed from the Spotify API in Feb 2026.
+- Add `id: string` to `SpotifyPlaylist.owner` — needed to compare against the logged-in user's ID to determine playlist ownership.
+
+### Auth store additions
+
+- Add `userId: string | null` to `auth-store.ts`, populated in `use-spotify-auth.ts` alongside `country` from the existing `/v1/me` call (the `SpotifyUser` type already has `id`).
 
 ---
 
@@ -160,10 +167,48 @@ Views affected: `AlbumDetailView`, `PlaylistDetailView`, `LikedSongsView`, `Sear
 
 ---
 
+## Feature 5: Rename Playlist
+
+### Location
+
+`PlaylistDetailView` — shown only when `playlist.owner.id === useAuthStore.getState().userId`.
+
+### Behavior
+
+- A "Rename" button in the playlist header (alongside Play)
+- Opens a modal (reuses the same modal pattern as `CreatePlaylistModal` but pre-filled with the current name, with a "Save" button instead of "Create")
+- On submit: `PUT /playlists/{id}` `{ name }` — requires `playlist-modify-public` or `playlist-modify-private` (already in scope)
+- On success: update `playlist.name` in local state, close modal
+
+### Component
+
+Rename shares the same modal structure as Create. Rather than a separate component, `CreatePlaylistModal` accepts an optional `initialName` prop and a `submitLabel` prop (defaults to "Create", override to "Save") to serve both purposes.
+
+---
+
+## Feature 6: Delete Playlist
+
+### Location
+
+`PlaylistDetailView` — shown only when `playlist.owner.id === useAuthStore.getState().userId`.
+
+### Behavior
+
+- A "Delete" button in the playlist header
+- Opens a confirmation modal: "Delete [playlist name]? This can't be undone." with "Delete" (destructive style) + "Cancel"
+- On confirm: `DELETE /me/library { uris: [playlist.uri] }` (unfollow/remove from library — Spotify has no hard-delete, unfollowing an owned playlist removes it from your library)
+- On success: navigate to `/` (library view)
+
+### Component
+
+A simple `ConfirmModal` component: `title`, `message`, `confirmLabel`, `onConfirm`, `onCancel`. Reusable for other destructive actions in the future.
+
+---
+
 ## Out of scope
 
-- Editing playlist names or details
 - Reordering tracks
 - Playlist cover images
 - Multi-select track operations
+- Renaming/deleting playlists you don't own
 - "Go to album" when already on the album page (still shown — navigating to the same route is harmless)
