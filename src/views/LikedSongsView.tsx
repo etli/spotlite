@@ -4,12 +4,15 @@ import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { usePlayerStore } from "../store/player-store";
 import { TrackRow } from "../components/TrackRow";
+import { TrackContextMenu } from "../components/TrackContextMenu";
+import { useTrackContextMenu } from "../hooks/use-track-context-menu";
 import type { SpotifyTrack, SpotifyPaginated } from "../types/spotify";
 
 export function LikedSongsView() {
   const [tracks, setTracks] = useState<SpotifyTrack[]>([]);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const navigate = useNavigate();
+  const { menuState, handleContextMenu, closeMenu } = useTrackContextMenu();
 
   const api = useMemo(
     () => createSpotifyApi(
@@ -43,7 +46,7 @@ export function LikedSongsView() {
         aria-label="Go back"
         className="flex w-fit items-center text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
       >
-        ←
+        ← Back
       </button>
       <div className="flex gap-6">
         <div className="glow flex h-48 w-48 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-violet-600 text-5xl">
@@ -63,9 +66,18 @@ export function LikedSongsView() {
             index={i}
             isPlaying={currentTrack?.id === track.id}
             onPlay={() => playTrack(track.uri)}
+            onContextMenu={handleContextMenu}
           />
         ))}
       </div>
+      {menuState && (
+        <TrackContextMenu
+          track={menuState.track}
+          x={menuState.x}
+          y={menuState.y}
+          onClose={closeMenu}
+        />
+      )}
     </div>
   );
 }
