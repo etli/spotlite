@@ -48,4 +48,16 @@ describe("PanelShell", () => {
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "" } });
     expect(screen.getByText("Home content")).toBeInTheDocument();
   });
+
+  it("clears the search query and navigates to / when the title is clicked", () => {
+    renderPanelShell();
+    // Type a search query so SearchResults is showing
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "jazz" } });
+    expect(screen.getByText("Results for jazz")).toBeInTheDocument();
+    // Click the title
+    fireEvent.click(screen.getByText(/spotlite/i));
+    // Search results should be gone, outlet should be back
+    expect(screen.queryByText("Results for jazz")).not.toBeInTheDocument();
+    expect(screen.getByText("Home content")).toBeInTheDocument();
+  });
 });

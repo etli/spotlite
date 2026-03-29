@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
@@ -17,9 +17,12 @@ export function PlaylistDetailView() {
   const [tracks, setTracks] = useState<SpotifyPlaylistItem[]>([]);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
 
-  const api = createSpotifyApi(
-    () => useAuthStore.getState().accessToken,
-    () => useAuthStore.getState().logout(),
+  const api = useMemo(
+    () => createSpotifyApi(
+      () => useAuthStore.getState().accessToken,
+      () => useAuthStore.getState().logout(),
+    ),
+    []
   );
 
   useEffect(() => {
@@ -27,7 +30,7 @@ export function PlaylistDetailView() {
     api.get<SpotifyPlaylist>(`/v1/playlists/${id}`).then(setPlaylist).catch(() => {});
     api.get<SpotifyPaginated<SpotifyPlaylistItem>>(`/v1/playlists/${id}/items`)
       .then((data) => setTracks(data.items.filter((item) => item.item != null))).catch(() => {});
-  }, [id]);
+  }, [id, api]);
 
   if (!playlist) return null;
 

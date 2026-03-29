@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
@@ -16,15 +16,18 @@ export function AlbumDetailView() {
   const [album, setAlbum] = useState<SpotifyAlbumFull | null>(null);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
 
-  const api = createSpotifyApi(
-    () => useAuthStore.getState().accessToken,
-    () => useAuthStore.getState().logout(),
+  const api = useMemo(
+    () => createSpotifyApi(
+      () => useAuthStore.getState().accessToken,
+      () => useAuthStore.getState().logout(),
+    ),
+    []
   );
 
   useEffect(() => {
     if (!id) return;
     api.get<SpotifyAlbumFull>(`/v1/albums/${id}`).then(setAlbum).catch(() => {});
-  }, [id]);
+  }, [id, api]);
 
   if (!album) return null;
 

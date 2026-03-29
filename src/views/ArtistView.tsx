@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
@@ -15,9 +15,12 @@ export function ArtistView() {
   const [artist, setArtist] = useState<SpotifyArtist | null>(null);
   const [albums, setAlbums] = useState<SpotifyAlbumSimplified[]>([]);
 
-  const api = createSpotifyApi(
-    () => useAuthStore.getState().accessToken,
-    () => useAuthStore.getState().logout(),
+  const api = useMemo(
+    () => createSpotifyApi(
+      () => useAuthStore.getState().accessToken,
+      () => useAuthStore.getState().logout(),
+    ),
+    []
   );
 
   useEffect(() => {
@@ -27,7 +30,7 @@ export function ArtistView() {
     api.get<SpotifyPaginated<SpotifyAlbumSimplified>>(`/v1/artists/${id}/albums`, {
       include_groups: "album,single,compilation", market,
     }).then((data) => setAlbums(data.items)).catch(() => {});
-  }, [id]);
+  }, [id, api]);
 
   if (!artist) return null;
 
