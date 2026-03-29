@@ -31,7 +31,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setCountry: (country) => set({ country }),
 
-  setUserId: (userId) => set({ userId }),
+  setUserId: (userId) => {
+    set({ userId });
+    localStorage.setItem("spotlite_user_id", userId);
+  },
 
   logout: () => {
     set({ accessToken: null, refreshToken: null, expiresAt: null, userId: null });
@@ -39,6 +42,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     localStorage.removeItem("spotlite_refresh_token");
     localStorage.removeItem("spotlite_expires_at");
     localStorage.removeItem("spotlite_code_verifier");
+    localStorage.removeItem("spotlite_user_id");
   },
 
   isAuthenticated: () => {
@@ -51,8 +55,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const accessToken = localStorage.getItem("spotlite_access_token");
     const refreshToken = localStorage.getItem("spotlite_refresh_token");
     const expiresAtStr = localStorage.getItem("spotlite_expires_at");
+    const userId = localStorage.getItem("spotlite_user_id");
     if (accessToken && refreshToken && expiresAtStr) {
-      set({ accessToken, refreshToken, expiresAt: parseInt(expiresAtStr, 10) });
+      set({ accessToken, refreshToken, expiresAt: parseInt(expiresAtStr, 10), userId });
     }
   },
 }));
