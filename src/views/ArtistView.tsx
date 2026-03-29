@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { AlbumCard } from "../components/AlbumCard";
+import { TrackContextMenu } from "../components/TrackContextMenu";
+import { useTrackContextMenu } from "../hooks/use-track-context-menu";
 import type { SpotifyArtist, SpotifyAlbumSimplified, SpotifyPaginated } from "../types/spotify";
 
 export function ArtistView() {
@@ -14,6 +16,8 @@ export function ArtistView() {
   };
   const [artist, setArtist] = useState<SpotifyArtist | null>(null);
   const [albums, setAlbums] = useState<SpotifyAlbumSimplified[]>([]);
+  const [following, setFollowing] = useState(false);
+  const { menuState, closeMenu } = useTrackContextMenu();
 
   const api = useMemo(
     () => createSpotifyApi(
@@ -25,7 +29,12 @@ export function ArtistView() {
 
   useEffect(() => {
     if (!id) return;
-    api.get<SpotifyArtist>(`/v1/artists/${id}`).then(setArtist).catch(() => {});
+    api.get<SpotifyArtist>(`/v1/artists/${id}`).then((data) => {
+      setArtist(data);
+      api.get<boolean[]>("/v1/me/library/contains", { uris: data.uri })
+        .then((results) => setFollowing(results[0] ?? false))
+        .catch(() => {});
+    }).catch(() => {});
     const market = useAuthStore.getState().country;
     api.get<SpotifyPaginated<SpotifyAlbumSimplified>>(`/v1/artists/${id}/albums`, {
       include_groups: "album,single,compilation", market,
@@ -33,6 +42,20 @@ export function ArtistView() {
   }, [id, api]);
 
   if (!artist) return null;
+
+  const toggleFollow = async () => {
+    const next = !following;
+    setFollowing(next);
+    try {
+      if (next) {
+        await api.put("/v1/me/library", { uris: [artist.uri] });
+      } else {
+        await api.delete("/v1/me/library", { uris: [artist.uri] });
+      }
+    } catch {
+      setFollowing(!next);
+    }
+  };
 
   const imageUrl = artist.images?.[0]?.url;
 
@@ -47,8 +70,14 @@ export function ArtistView() {
       </button>
       <div className="flex items-end gap-6">
         {imageUrl && <img src={imageUrl} alt={artist.name} className="glow h-48 w-48 shrink-0 rounded-full object-cover" />}
-        <div>
+        <div className="flex flex-col gap-2">
           <h1 className="text-4xl font-bold text-[var(--color-text-primary)]">{artist.name}</h1>
+          <button
+            onClick={toggleFollow}
+            className="w-fit rounded-full border border-[var(--theme-accent)] px-4 py-1.5 text-sm font-medium text-[var(--theme-accent)] transition-all hover:bg-[var(--theme-accent)]/10"
+          >
+            {following ? "Following ✓" : "Follow"}
+          </button>
         </div>
       </div>
       {albums.length > 0 && (
@@ -61,6 +90,14 @@ export function ArtistView() {
             ))}
           </div>
         </section>
+      )}
+      {menuState && (
+        <TrackContextMenu
+          track={menuState.track}
+          x={menuState.x}
+          y={menuState.y}
+          onClose={closeMenu}
+        />
       )}
     </div>
   );
