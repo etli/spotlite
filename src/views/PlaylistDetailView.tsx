@@ -57,8 +57,13 @@ export function PlaylistDetailView() {
   };
 
   const handleDelete = async () => {
-    await api.delete("/v1/me/library", { uris: [playlist.uri] });
-    navigate("/");
+    try {
+      await api.delete("/v1/me/library", { uris: [playlist.uri] });
+      navigate("/");
+    } catch (err) {
+      console.error("Failed to delete playlist:", err);
+      setShowDeleteConfirm(false);
+    }
   };
 
   const imageUrl = playlist.images?.[0]?.url;
@@ -169,6 +174,8 @@ function RenameModal({
   onCancel: () => void;
 }) {
   const [name, setName] = useState(playlist.name);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onCancel(); };
@@ -180,8 +187,17 @@ function RenameModal({
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) return;
-    await api.put(`/v1/playlists/${playlist.id}`, { name: trimmed });
-    onRenamed(trimmed);
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      await api.put(`/v1/playlists/${playlist.id}`, { name: trimmed });
+      onRenamed(trimmed);
+    } catch (err) {
+      console.error("Failed to rename playlist:", err);
+      setError("Failed to rename. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return ReactDOM.createPortal(
@@ -201,18 +217,20 @@ function RenameModal({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Playlist name"
-          className="mb-6 w-full rounded-xl border border-[var(--color-border)] bg-white/50 px-4 py-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--theme-accent)]"
+          className="mb-2 w-full rounded-xl border border-[var(--color-border)] bg-white/50 px-4 py-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--theme-accent)]"
         />
+        {error && <p className="mb-4 text-xs text-red-500">{error}</p>}
+        {!error && <div className="mb-4" />}
         <div className="flex justify-end gap-3">
           <button type="button" onClick={onCancel} className="rounded-full px-4 py-1.5 text-sm text-[var(--color-text-secondary)] transition-all hover:bg-white/50">
             Cancel
           </button>
           <button
             type="submit"
-            disabled={!name.trim()}
+            disabled={!name.trim() || isSubmitting}
             className="rounded-full bg-[var(--theme-accent)] px-4 py-1.5 text-sm font-medium text-white shadow-sm transition-all hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
           >
-            Save
+            {isSubmitting ? "Saving..." : "Save"}
           </button>
         </div>
       </form>
