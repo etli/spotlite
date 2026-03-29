@@ -73,7 +73,7 @@ function PlaylistFlyout({
         onClick={onCreatePlaylist}
         className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-[var(--theme-accent)] hover:bg-white/50"
       >
-        <span>＋</span> New playlist
+        <span>+</span> New playlist
       </button>
     </div>
   );
@@ -161,7 +161,10 @@ export function TrackContextMenu({
           onMouseEnter={() => setFlyoutOpen(true)}
           onMouseLeave={() => setFlyoutOpen(false)}
         >
-          <button className="flex w-full items-center justify-between px-4 py-2 text-left text-sm text-[var(--color-text-primary)] hover:bg-white/50">
+          <button
+            onClick={() => setFlyoutOpen((prev) => !prev)}
+            className="flex w-full items-center justify-between px-4 py-2 text-left text-sm text-[var(--color-text-primary)] hover:bg-white/50"
+          >
             Add to playlist <span className="text-xs text-[var(--color-text-muted)]">▶</span>
           </button>
           {flyoutOpen && (
