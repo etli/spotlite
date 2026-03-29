@@ -11,7 +11,6 @@ import { NowPlaying } from "./components/NowPlaying";
 import { DevicePicker } from "./components/DevicePicker";
 import { LoginView } from "./views/LoginView";
 import { LibraryView } from "./views/LibraryView";
-import { SearchView } from "./views/SearchView";
 import { PlaylistDetailView } from "./views/PlaylistDetailView";
 import { AlbumDetailView } from "./views/AlbumDetailView";
 import { ArtistView } from "./views/ArtistView";
@@ -80,7 +79,6 @@ export default function App() {
       <Routes>
         <Route element={<AppLayout playback={playback} />}>
           <Route path="/" element={<LibraryView />} />
-          <Route path="/search" element={<SearchView />} />
           <Route path="/playlist/:id" element={<PlaylistDetailView />} />
           <Route path="/album/:id" element={<AlbumDetailView />} />
           <Route path="/artist/:id" element={<ArtistView />} />

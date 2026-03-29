@@ -15,6 +15,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
       />
       {value && (
         <button
+          type="button"
           onClick={() => onChange("")}
           aria-label="Clear search"
           className="absolute right-3 top-1/2 -translate-y-1/2 text-lg leading-none text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text-primary)]"
