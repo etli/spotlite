@@ -23,7 +23,7 @@ export function LibraryView() {
   useEffect(() => {
     if (activeTab === "playlists") {
       api.get<SpotifyPaginated<SpotifyPlaylist>>("/v1/me/playlists", { limit: "50" })
-        .then((data) => setPlaylists(data.items)).catch(() => {});
+        .then((data) => setPlaylists(data.items.filter((pl) => pl != null))).catch(() => {});
     } else if (activeTab === "albums") {
       api.get<SpotifyPaginated<{ album: SpotifyAlbumSimplified }>>("/v1/me/albums", { limit: "50" })
         .then((data) => setAlbums(data.items.map((i) => i.album))).catch(() => {});
@@ -43,7 +43,9 @@ export function LibraryView() {
     const body: Record<string, unknown> = {};
     if (contextUri) { body.context_uri = contextUri; body.offset = { uri }; }
     else { body.uris = [uri]; }
-    await api.put("/v1/me/player/play", body);
+    const deviceId = usePlayerStore.getState().activeDeviceId;
+    const params = deviceId ? { device_id: deviceId } : undefined;
+    await api.put("/v1/me/player/play", body, params);
   };
 
   return (
@@ -62,7 +64,7 @@ export function LibraryView() {
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {playlists.map((pl) => (
             <AlbumCard key={pl.id} id={pl.id} name={pl.name} imageUrl={pl.images?.[0]?.url}
-              subtitle={`${pl.tracks.total} tracks`} linkTo={`/playlist/${pl.id}`} />
+              subtitle={`${pl.items?.total ?? 0} tracks`} linkTo={`/playlist/${pl.id}`} />
           ))}
         </div>
       )}

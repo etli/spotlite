@@ -13,7 +13,7 @@ export interface SpotifyArtistSimplified {
 export interface SpotifyArtist extends SpotifyArtistSimplified {
   images: SpotifyImage[];
   genres: string[];
-  followers: { total: number };
+  followers?: { total: number };
 }
 
 export interface SpotifyAlbumSimplified {
@@ -44,7 +44,7 @@ export interface SpotifyPlaylist {
   description: string | null;
   images: SpotifyImage[];
   owner: { display_name: string | null };
-  tracks: { total: number };
+  items?: { total: number; href: string; items: SpotifyPlaylistItem[] };
   uri: string;
 }
 
@@ -80,6 +80,12 @@ export interface SpotifySearchResult {
   artists?: SpotifyPaginated<SpotifyArtist>;
 }
 
+export interface SpotifyPlaylistItem {
+  item: SpotifyTrack | null;
+  added_at: string;
+}
+
+/** @deprecated Use SpotifyPlaylistItem */
 export interface SpotifyPlaylistTrackItem {
   track: SpotifyTrack | null;
   added_at: string;
@@ -87,7 +93,7 @@ export interface SpotifyPlaylistTrackItem {
 
 export interface SpotifyAlbumFull extends SpotifyAlbumSimplified {
   tracks: SpotifyPaginated<SpotifyTrack>;
-  label: string;
+  label?: string;
   copyrights: { text: string; type: string }[];
 }
 
