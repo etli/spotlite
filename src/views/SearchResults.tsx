@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AlbumCard } from "../components/AlbumCard";
 import { TrackRow } from "../components/TrackRow";
 import { createSpotifyApi } from "../lib/spotify-api";
@@ -10,9 +10,12 @@ export function SearchResults({ query }: { query: string }) {
   const [results, setResults] = useState<SpotifySearchResult | null>(null);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
 
-  const api = createSpotifyApi(
-    () => useAuthStore.getState().accessToken,
-    () => useAuthStore.getState().logout(),
+  const api = useMemo(
+    () => createSpotifyApi(
+      () => useAuthStore.getState().accessToken,
+      () => useAuthStore.getState().logout(),
+    ),
+    []
   );
 
   useEffect(() => {
@@ -34,7 +37,7 @@ export function SearchResults({ query }: { query: string }) {
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, api]);
 
   const playTrack = async (uri: string) => {
     const deviceId = usePlayerStore.getState().activeDeviceId;
@@ -94,7 +97,11 @@ export function SearchResults({ query }: { query: string }) {
           </div>
         </section>
       )}
-      {!results && (
+      {(!results || (
+        (results.tracks?.items.length ?? 0) === 0 &&
+        (results.albums?.items.length ?? 0) === 0 &&
+        (results.artists?.items.length ?? 0) === 0
+      )) && (
         <div className="flex flex-col items-center justify-center py-20 text-[var(--color-text-muted)]">
           <span className="mb-2 text-4xl">🔍</span>
           <p className="text-sm">Search for your favorite music</p>
