@@ -18,22 +18,16 @@ interface TrackContextMenuProps {
 function PlaylistFlyout({
   track,
   api,
+  playlists,
   onClose,
   onCreatePlaylist,
 }: {
   track: SpotifyTrack;
   api: ReturnType<typeof createSpotifyApi>;
+  playlists: SpotifyPlaylist[];
   onClose: () => void;
   onCreatePlaylist: () => void;
 }) {
-  const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
-
-  useEffect(() => {
-    api.get<SpotifyPaginated<SpotifyPlaylist>>("/v1/me/playlists", { limit: "50" })
-      .then((data) => setPlaylists(data.items.filter(Boolean)))
-      .catch((err) => { console.error("Failed to load playlists:", err); });
-  }, [api]);
-
   const addToPlaylist = async (playlistId: string) => {
     try {
       await api.post(`/v1/playlists/${playlistId}/items`, { uris: [track.uri] });
@@ -93,6 +87,7 @@ export function TrackContextMenu({
   const menuRef = useRef<HTMLDivElement>(null);
   const [flyoutOpen, setFlyoutOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
 
   const api = useMemo(
     () => createSpotifyApi(
@@ -101,6 +96,13 @@ export function TrackContextMenu({
     ),
     []
   );
+
+  // Fetch playlists once when the menu opens, not on every flyout hover
+  useEffect(() => {
+    api.get<SpotifyPaginated<SpotifyPlaylist>>("/v1/me/playlists", { limit: "50" })
+      .then((data) => setPlaylists(data.items.filter(Boolean)))
+      .catch((err) => { console.error("Failed to load playlists:", err); });
+  }, [api]);
 
   // Close on Escape
   useEffect(() => {
@@ -181,6 +183,7 @@ export function TrackContextMenu({
             <PlaylistFlyout
               track={track}
               api={api}
+              playlists={playlists}
               onClose={onClose}
               onCreatePlaylist={handleCreatePlaylistModal}
             />
