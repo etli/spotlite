@@ -5,6 +5,7 @@ interface TrackRowProps {
   index: number;
   isPlaying: boolean;
   onPlay: () => void;
+  onContextMenu?: (track: SpotifyTrack, e: React.MouseEvent) => void;
 }
 
 function formatDuration(ms: number): string {
@@ -14,9 +15,11 @@ function formatDuration(ms: number): string {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
-export function TrackRow({ track, index, isPlaying, onPlay }: TrackRowProps) {
+export function TrackRow({ track, index, isPlaying, onPlay, onContextMenu }: TrackRowProps) {
   return (
-    <button onClick={onPlay}
+    <button
+      onClick={onPlay}
+      onContextMenu={onContextMenu ? (e) => { e.preventDefault(); onContextMenu(track, e); } : undefined}
       className={`group flex w-full items-center gap-4 rounded-xl px-3 py-2.5 text-left transition-all hover:bg-white/30 ${
         isPlaying ? "bg-[var(--theme-accent)]/10" : ""
       }`}>
