@@ -13,7 +13,6 @@ export interface SpotifyArtistSimplified {
 export interface SpotifyArtist extends SpotifyArtistSimplified {
   images: SpotifyImage[];
   genres: string[];
-  followers?: { total: number };
 }
 
 export interface SpotifyAlbumSimplified {
@@ -43,7 +42,7 @@ export interface SpotifyPlaylist {
   name: string;
   description: string | null;
   images: SpotifyImage[];
-  owner: { display_name: string | null };
+  owner: { id: string; display_name: string | null };
   items?: { total: number; href: string; items: SpotifyPlaylistItem[] };
   uri: string;
 }

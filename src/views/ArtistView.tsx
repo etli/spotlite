@@ -43,15 +43,12 @@ export function ArtistView() {
         aria-label="Go back"
         className="flex w-fit items-center text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
       >
-        ←
+        ← Back
       </button>
       <div className="flex items-end gap-6">
         {imageUrl && <img src={imageUrl} alt={artist.name} className="glow h-48 w-48 shrink-0 rounded-full object-cover" />}
         <div>
           <h1 className="text-4xl font-bold text-[var(--color-text-primary)]">{artist.name}</h1>
-          {artist.followers && (
-            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{artist.followers.total.toLocaleString()} followers</p>
-          )}
         </div>
       </div>
       {albums.length > 0 && (
