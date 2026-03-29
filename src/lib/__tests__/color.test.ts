@@ -27,13 +27,13 @@ describe("hslToRgb", () => {
 describe("pastelizeColor", () => {
   it("clamps dark aggressive colors to pastel range", () => {
     const result = pastelizeColor(139, 0, 0);
-    expect(result.s).toBeGreaterThanOrEqual(30); expect(result.s).toBeLessThanOrEqual(50);
-    expect(result.l).toBeGreaterThanOrEqual(75); expect(result.l).toBeLessThanOrEqual(85);
+    expect(result.s).toBeGreaterThanOrEqual(35); expect(result.s).toBeLessThanOrEqual(55);
+    expect(result.l).toBeGreaterThanOrEqual(78); expect(result.l).toBeLessThanOrEqual(88);
   });
   it("clamps already-light colors", () => {
     const result = pastelizeColor(255, 200, 200);
-    expect(result.s).toBeGreaterThanOrEqual(30); expect(result.s).toBeLessThanOrEqual(50);
-    expect(result.l).toBeGreaterThanOrEqual(75); expect(result.l).toBeLessThanOrEqual(85);
+    expect(result.s).toBeGreaterThanOrEqual(35); expect(result.s).toBeLessThanOrEqual(55);
+    expect(result.l).toBeGreaterThanOrEqual(78); expect(result.l).toBeLessThanOrEqual(88);
   });
   it("preserves hue", () => {
     const [originalH] = rgbToHsl(0, 100, 200);

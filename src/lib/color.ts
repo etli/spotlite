@@ -40,7 +40,7 @@ export interface HslColor { h: number; s: number; l: number; }
 
 export function pastelizeColor(r: number, g: number, b: number): HslColor {
   const [h, _s, _l] = rgbToHsl(r, g, b);
-  return { h, s: clamp(_s, 30, 50), l: clamp(_l, 75, 85) };
+  return { h, s: clamp(_s, 35, 55), l: clamp(_l, 78, 88) };
 }
 
 export function deriveAccent(h: number, s: number, l: number): HslColor {
