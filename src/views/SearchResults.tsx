@@ -6,7 +6,7 @@ import { useAuthStore } from "../store/auth-store";
 import { usePlayerStore } from "../store/player-store";
 import type { SpotifySearchResult } from "../types/spotify";
 
-export function SearchResults({ query }: { query: string }) {
+export function SearchResults({ query, onNavigate }: { query: string; onNavigate?: () => void }) {
   const [results, setResults] = useState<SpotifySearchResult | null>(null);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
 
@@ -75,6 +75,7 @@ export function SearchResults({ query }: { query: string }) {
                 imageUrl={album.images?.[0]?.url}
                 subtitle={album.artists.map((a) => a.name).join(", ")}
                 linkTo={`/album/${album.id}`}
+                onClick={onNavigate}
               />
             ))}
           </div>
@@ -92,6 +93,7 @@ export function SearchResults({ query }: { query: string }) {
                 imageUrl={artist.images?.[0]?.url}
                 subtitle={artist.genres?.[0] ?? ""}
                 linkTo={`/artist/${artist.id}`}
+                onClick={onNavigate}
               />
             ))}
           </div>

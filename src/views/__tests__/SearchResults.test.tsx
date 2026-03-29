@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SearchResults } from "../SearchResults";
@@ -58,5 +58,28 @@ describe("SearchResults", () => {
 
     await screen.findByText("Test Artist");
     expect(screen.queryByText(/followers/i)).not.toBeInTheDocument();
+  });
+
+  it("calls onNavigate when an album card is clicked", async () => {
+    const onNavigate = vi.fn();
+    mockGet.mockResolvedValueOnce({
+      albums: {
+        items: [
+          { id: "alb1", name: "Test Album", images: [], artists: [{ name: "Artist" }] },
+        ],
+      },
+      tracks: { items: [] },
+      artists: { items: [] },
+    });
+
+    render(
+      <MemoryRouter>
+        <SearchResults query="test" onNavigate={onNavigate} />
+      </MemoryRouter>
+    );
+
+    const albumLink = await screen.findByRole("link", { name: /test album/i });
+    fireEvent.click(albumLink);
+    expect(onNavigate).toHaveBeenCalled();
   });
 });

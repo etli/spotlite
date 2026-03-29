@@ -6,11 +6,12 @@ interface AlbumCardProps {
   imageUrl: string | undefined;
   subtitle: string;
   linkTo: string;
+  onClick?: () => void;
 }
 
-export function AlbumCard({ name, imageUrl, subtitle, linkTo }: AlbumCardProps) {
+export function AlbumCard({ name, imageUrl, subtitle, linkTo, onClick }: AlbumCardProps) {
   return (
-    <Link to={linkTo} className="group flex flex-col gap-2 rounded-2xl p-3 transition-all hover:bg-white/30">
+    <Link to={linkTo} onClick={onClick} className="group flex flex-col gap-2 rounded-2xl p-3 transition-all hover:bg-white/30">
       <div className="aspect-square overflow-hidden rounded-xl">
         {imageUrl ? (
           <img src={imageUrl} alt={name} className="glow h-full w-full object-cover transition-transform group-hover:scale-105" />

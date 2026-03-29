@@ -26,7 +26,7 @@ export function PanelShell() {
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
       </div>
       <div className="flex-1 overflow-y-auto p-6">
-        {searchQuery ? <SearchResults query={searchQuery} /> : <Outlet />}
+        {searchQuery ? <SearchResults query={searchQuery} onNavigate={() => setSearchQuery("")} /> : <Outlet />}
       </div>
     </div>
   );
