@@ -17,7 +17,7 @@ export function PanelShell() {
       <div className="shrink-0 px-4 pt-4 pb-2">
         <button
           onClick={handleTitleClick}
-          className="text-lg font-light tracking-widest text-[var(--color-text-primary)] transition-opacity hover:opacity-70"
+          className="text-[11px] tracking-widest text-[var(--color-text-primary)] transition-opacity hover:opacity-70"
         >
           ✦ spotlite
         </button>
@@ -25,7 +25,7 @@ export function PanelShell() {
       <div className="shrink-0 px-4 pb-3">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
       </div>
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4">
         {searchQuery ? <SearchResults query={searchQuery} onNavigate={() => setSearchQuery("")} /> : <Outlet />}
       </div>
     </div>
