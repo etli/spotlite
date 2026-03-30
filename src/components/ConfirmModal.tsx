@@ -22,21 +22,21 @@ export function ConfirmModal({ title, message, confirmLabel, onConfirm, onCancel
       onClick={onCancel}
     >
       <div
-        className="w-80 rounded-2xl bg-white p-6 shadow-2xl"
+        className="w-80 border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-[2px_2px_0_var(--theme-shadow)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-2 text-base font-semibold text-[var(--color-text-primary)]">{title}</h2>
-        <p className="mb-6 text-sm text-[var(--color-text-secondary)]">{message}</p>
+        <h2 className="mb-3 text-[10px] text-[var(--color-text-primary)]">{title}</h2>
+        <p className="mb-6 text-[8px] text-[var(--color-text-secondary)]">{message}</p>
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
-            className="rounded-full px-4 py-1.5 text-sm text-[var(--color-text-secondary)] transition-all hover:bg-white/50"
+            className="border border-[var(--color-border)] px-4 py-1.5 text-[8px] text-[var(--color-text-secondary)] transition-all hover:bg-[var(--color-surface-hover)]"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="rounded-full bg-red-500 px-4 py-1.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-red-600"
+            className="border border-[var(--color-border)] bg-red-400 px-4 py-1.5 text-[8px] font-medium text-white shadow-[2px_2px_0_#b91c1c] transition-all hover:bg-red-500"
           >
             {confirmLabel}
           </button>
