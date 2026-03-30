@@ -1,6 +1,6 @@
 # Spotlite
 
-A minimal Spotify web client with a Y2K cyber-pastel light aesthetic. No backend — auth runs entirely in the browser via OAuth2 PKCE.
+A minimal Spotify web client with a retro pixel aesthetic. No backend — auth runs entirely in the browser via OAuth2 PKCE.
 
 ## Features
 
@@ -8,7 +8,6 @@ A minimal Spotify web client with a Y2K cyber-pastel light aesthetic. No backend
 - Full playback controls — shuffle, repeat, volume, seek
 - Dynamic theming: album art colors drive the UI palette in real time
 - Spotify Connect support via remote device polling
-- Library tabs sorted by most recently played
 
 ## Setup
 
