@@ -17,6 +17,10 @@ vi.mock("../../store/auth-store", () => ({
   useAuthStore: { getState: () => ({ accessToken: "token", logout: vi.fn() }) },
 }));
 
+vi.mock("../../store/toast-store", () => ({
+  useToastStore: { getState: () => ({ push: vi.fn() }) },
+}));
+
 const track: SpotifyTrack = {
   id: "t1",
   name: "Test Song",

@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
+import { useToastStore } from "../store/toast-store";
 import { CreatePlaylistModal } from "./CreatePlaylistModal";
 import type { SpotifyTrack, SpotifyPlaylist, SpotifyPaginated } from "../types/spotify";
 
@@ -13,6 +14,7 @@ interface TrackContextMenuProps {
   y: number;
   onClose: () => void;
   playlistId?: string;
+  isLikedSongs?: boolean;
   onRemoveTrack?: () => void;
 }
 
@@ -30,8 +32,10 @@ function PlaylistFlyout({
   onCreatePlaylist: () => void;
 }) {
   const addToPlaylist = async (playlistId: string) => {
+    const playlistName = playlists.find((p) => p.id === playlistId)?.name ?? "playlist";
     try {
       await api.post(`/v1/playlists/${playlistId}/items`, { uris: [track.uri] });
+      useToastStore.getState().push(`Added to ${playlistName}`);
       onClose();
     } catch (err) {
       console.error("Failed to add track to playlist:", err);
@@ -41,6 +45,7 @@ function PlaylistFlyout({
   const addToLikedSongs = async () => {
     try {
       await api.put("/v1/me/library", undefined, { uris: track.uri });
+      useToastStore.getState().push("Added to Liked Songs");
       onClose();
     } catch (err) {
       console.error("Failed to add track to Liked Songs:", err);
@@ -48,7 +53,7 @@ function PlaylistFlyout({
   };
 
   return (
-    <div className="absolute left-full top-0 w-48 border border-[var(--color-border)] bg-[var(--color-surface)] py-1 shadow-[2px_2px_0_var(--theme-shadow)]">
+    <div className="absolute left-full top-0 max-h-64 w-48 overflow-y-auto border border-[var(--color-border)] bg-[var(--color-surface)] py-1 shadow-[2px_2px_0_var(--theme-shadow)]">
       <button
         onClick={addToLikedSongs}
         className="flex w-full items-center gap-2 px-4 py-2 text-left text-[9px] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]"
@@ -82,6 +87,7 @@ export function TrackContextMenu({
   y,
   onClose,
   playlistId,
+  isLikedSongs,
   onRemoveTrack,
 }: TrackContextMenuProps) {
   const navigate = useNavigate();
@@ -138,10 +144,20 @@ export function TrackContextMenu({
     onClose();
   };
 
+  const handleRemoveFromLikedSongs = async () => {
+    try {
+      await api.delete("/v1/me/library", undefined, { uris: track.uri });
+      onRemoveTrack?.();
+      onClose();
+    } catch (err) {
+      console.error("Failed to remove from Liked Songs:", err);
+    }
+  };
+
   const handleRemove = async () => {
     if (!playlistId) return;
     try {
-      await api.delete(`/v1/playlists/${playlistId}/items`, undefined, { uris: track.uri });
+      await api.delete(`/v1/playlists/${playlistId}/items`, { items: [{ uri: track.uri }] });
       onRemoveTrack?.();
       onClose();
     } catch (err) {
@@ -157,6 +173,7 @@ export function TrackContextMenu({
   const handlePlaylistCreated = async (playlist: SpotifyPlaylist) => {
     try {
       await api.post(`/v1/playlists/${playlist.id}/items`, { uris: [track.uri] });
+      useToastStore.getState().push(`Added to ${playlist.name}`);
       setShowCreateModal(false);
       onClose();
     } catch (err) {
@@ -209,15 +226,25 @@ export function TrackContextMenu({
           Go to album
         </button>
 
-        {playlistId && (
+        {(playlistId || isLikedSongs) && (
           <>
             <div className="my-1 border-t border-[var(--color-border)]" />
-            <button
-              onClick={handleRemove}
-              className="flex w-full items-center gap-2 px-4 py-2 text-left text-[9px] text-red-500 hover:bg-[var(--color-surface-hover)]"
-            >
-              Remove from playlist
-            </button>
+            {isLikedSongs && (
+              <button
+                onClick={handleRemoveFromLikedSongs}
+                className="flex w-full items-center gap-2 px-4 py-2 text-left text-[9px] text-red-500 hover:bg-[var(--color-surface-hover)]"
+              >
+                Remove from Liked Songs
+              </button>
+            )}
+            {playlistId && (
+              <button
+                onClick={handleRemove}
+                className="flex w-full items-center gap-2 px-4 py-2 text-left text-[9px] text-red-500 hover:bg-[var(--color-surface-hover)]"
+              >
+                Remove from playlist
+              </button>
+            )}
           </>
         )}
       </div>
