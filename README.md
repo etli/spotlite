@@ -1,10 +1,10 @@
 # Spotlite
 
-A minimal Spotify web client with a retro pixel aesthetic. No backend — auth runs entirely in the browser via OAuth2 PKCE.
+A minimal Spotify web client with a Y2K-inspired retro pixel aesthetic. No backend — auth runs entirely in the browser via OAuth2 PKCE.
 
 ## Features
 
-- Browse and play your library (playlists, albums, artists)
+- Browse and play your music library (playlists, albums, artists)
 - Full playback controls — shuffle, repeat, volume, seek
 - Dynamic theming: album art colors drive the UI palette in real time
 - Spotify Connect support via remote device polling
@@ -37,5 +37,5 @@ npm run test       # Run tests (Vitest)
 - **React 19** + **TypeScript** + **Vite**
 - **Zustand** for state (auth, player, theme)
 - **React Router 7** for client-side routing
-- **Tailwind CSS 4** + CSS variables for glass-morphism theming
+- **Tailwind CSS 4** + CSS variables for theming
 - **Spotify Web Playback SDK** + REST API v1
