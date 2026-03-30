@@ -19,7 +19,7 @@ export function PanelShell() {
           onClick={handleTitleClick}
           className="text-[11px] tracking-widest text-[var(--color-text-primary)] transition-opacity hover:opacity-70"
         >
-          ✦ spotlite
+          <span className="text-[15px]">✦</span> spotlite
         </button>
       </div>
       <div className="shrink-0 px-4 pb-3">

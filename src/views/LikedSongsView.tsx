@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
@@ -64,13 +65,13 @@ export function LikedSongsView() {
       <button
         onClick={goBack}
         aria-label="Go back"
-        className="flex w-fit items-center text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
+        className="flex w-fit items-center gap-2 text-[9px] text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
       >
-        ← Back
+        <span className="text-[14px]">←</span> Back
       </button>
       <div className="flex gap-6">
-        <div className="glow flex h-48 w-48 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-violet-600 text-5xl">
-          💜
+        <div className="glow flex h-48 w-48 shrink-0 items-center justify-center border border-[var(--color-border)] bg-[var(--theme-primary)]">
+          <Heart size={48} strokeLinecap="square" strokeLinejoin="miter" className="text-white" />
         </div>
         <div className="flex flex-col justify-end gap-2">
           <p className="text-xs uppercase tracking-wider text-[var(--color-text-muted)]">Playlist</p>
@@ -96,7 +97,7 @@ export function LikedSongsView() {
           <button
             onClick={loadMore}
             disabled={loadingMore}
-            className="rounded-full bg-white/30 px-6 py-2 text-sm text-[var(--color-text-secondary)] transition-all hover:bg-white/50 disabled:opacity-50"
+            className="border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-2 text-[9px] text-[var(--color-text-secondary)] transition-all hover:bg-[var(--color-surface-hover)] disabled:opacity-50"
           >
             {loadingMore ? "Loading..." : "Load 50 more"}
           </button>

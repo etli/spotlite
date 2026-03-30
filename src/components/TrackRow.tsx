@@ -24,7 +24,7 @@ export function TrackRow({ track, index, isPlaying, onPlay, onContextMenu }: Tra
         isPlaying ? "bg-[var(--theme-accent)]/10" : ""
       }`}>
       <span className="w-6 text-center text-[8px] text-[var(--color-text-muted)] group-hover:hidden">{index + 1}</span>
-      <span className="hidden w-6 text-center text-[8px] group-hover:block">▶</span>
+      <span className="hidden w-6 text-center text-[12px] group-hover:block">▶</span>
       <div className="min-w-0 flex-1">
         <p className={`truncate text-[9px] ${isPlaying ? "font-medium text-[var(--theme-accent)]" : "text-[var(--color-text-primary)]"}`}>{track.name}</p>
         <p className="mt-0.5 truncate text-[8px] text-[var(--color-text-secondary)]">{track.artists.map((a) => a.name).join(", ")}</p>

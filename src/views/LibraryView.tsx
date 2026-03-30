@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
@@ -57,16 +58,16 @@ export function LibraryView() {
       <div className="mb-6 flex items-center gap-2">
         {tabs.map((tab) => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-            className={`rounded-full px-4 py-1.5 text-sm transition-all ${
+            className={`border px-4 py-1.5 text-[9px] transition-all ${
               activeTab === tab.key
-                ? "bg-[var(--theme-accent)] text-white shadow-md"
-                : "bg-white/30 text-[var(--color-text-secondary)] hover:bg-white/50"
+                ? "border-[var(--color-border)] bg-[var(--theme-accent)] text-white shadow-[2px_2px_0_var(--theme-shadow)]"
+                : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]"
             }`}>{tab.label}</button>
         ))}
         {activeTab === "playlists" && (
           <button
             onClick={() => setShowCreateModal(true)}
-            className="ml-auto rounded-full bg-white/30 px-4 py-1.5 text-sm text-[var(--color-text-secondary)] transition-all hover:bg-white/50"
+            className="ml-auto border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-1.5 text-[9px] text-[var(--color-text-secondary)] transition-all hover:bg-[var(--color-surface-hover)]"
           >
             + New
           </button>
@@ -77,14 +78,14 @@ export function LibraryView() {
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           <Link
             to="/liked"
-            className="group flex flex-col gap-2 rounded-2xl p-3 transition-all hover:bg-white/30"
+            className="group flex flex-col gap-2 border border-transparent p-3 transition-all hover:border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] hover:shadow-[2px_2px_0_var(--theme-shadow)]"
           >
-            <div className="aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-purple-400 to-violet-600 flex items-center justify-center text-4xl">
-              💜
+            <div className="aspect-square overflow-hidden border border-[var(--color-border)] bg-[var(--theme-primary)] flex items-center justify-center">
+              <Heart size={32} strokeLinecap="square" strokeLinejoin="miter" className="text-white" />
             </div>
             <div className="min-w-0 px-1">
-              <p className="truncate text-sm font-medium text-[var(--color-text-primary)]">Liked Songs</p>
-              <p className="truncate text-xs text-[var(--color-text-secondary)]">{likedCount !== null ? `${likedCount} tracks` : ""}</p>
+              <p className="truncate text-[9px] font-medium text-[var(--color-text-primary)]">Liked Songs</p>
+              <p className="truncate text-[7px] text-[var(--color-text-secondary)]">{likedCount !== null ? `${likedCount} tracks` : ""}</p>
             </div>
           </Link>
           {playlists.map((pl) => (

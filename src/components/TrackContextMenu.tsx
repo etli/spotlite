@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { Heart, Music } from "lucide-react";
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
@@ -47,29 +48,29 @@ function PlaylistFlyout({
   };
 
   return (
-    <div className="absolute left-full top-0 w-48 rounded-xl border border-white/40 bg-white/90 py-1 shadow-2xl backdrop-blur-md">
+    <div className="absolute left-full top-0 w-48 border border-[var(--color-border)] bg-[var(--color-surface)] py-1 shadow-[2px_2px_0_var(--theme-shadow)]">
       <button
         onClick={addToLikedSongs}
-        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-[var(--color-text-primary)] hover:bg-white/50"
+        className="flex w-full items-center gap-2 px-4 py-2 text-left text-[9px] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]"
       >
-        <span>💜</span> Liked Songs
+        <Heart size={12} strokeLinecap="square" strokeLinejoin="miter" /> Liked Songs
       </button>
       {playlists.map((pl) => (
         <button
           key={pl.id}
           onClick={() => addToPlaylist(pl.id)}
-          className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-[var(--color-text-primary)] hover:bg-white/50"
+          className="flex w-full items-center gap-2 px-4 py-2 text-left text-[9px] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]"
         >
-          <span>🎵</span>
+          <Music size={12} strokeLinecap="square" strokeLinejoin="miter" />
           <span className="truncate">{pl.name}</span>
         </button>
       ))}
-      <div className="my-1 border-t border-white/30" />
+      <div className="my-1 border-t border-[var(--color-border)]" />
       <button
         onClick={onCreatePlaylist}
-        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-[var(--theme-accent)] hover:bg-white/50"
+        className="flex w-full items-center gap-2 px-4 py-2 text-left text-[9px] text-[var(--theme-accent)] hover:bg-[var(--color-surface-hover)]"
       >
-        <span>+</span> New playlist
+        + New playlist
       </button>
     </div>
   );
@@ -168,7 +169,7 @@ export function TrackContextMenu({
       <div
         ref={menuRef}
         style={{ position: "fixed", left: clampedX, top: clampedY, zIndex: 9999 }}
-        className="w-48 rounded-xl border border-white/40 bg-white/90 py-1 shadow-2xl backdrop-blur-md"
+        className="w-48 border border-[var(--color-border)] bg-[var(--color-surface)] py-1 shadow-[2px_2px_0_var(--theme-shadow)]"
       >
         {/* Add to playlist */}
         <div
@@ -178,9 +179,9 @@ export function TrackContextMenu({
         >
           <button
             onClick={() => setFlyoutOpen((prev) => !prev)}
-            className="flex w-full items-center justify-between px-4 py-2 text-left text-sm text-[var(--color-text-primary)] hover:bg-white/50"
+            className="flex w-full items-center justify-between px-4 py-2 text-left text-[9px] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]"
           >
-            Add to playlist <span className="text-xs text-[var(--color-text-muted)]">▶</span>
+            Add to playlist <span className="text-[11px] text-[var(--color-text-muted)]">▶</span>
           </button>
           {flyoutOpen && (
             <PlaylistFlyout
@@ -193,27 +194,27 @@ export function TrackContextMenu({
           )}
         </div>
 
-        <div className="my-1 border-t border-white/30" />
+        <div className="my-1 border-t border-[var(--color-border)]" />
 
         <button
           onClick={handleGoToArtist}
-          className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-[var(--color-text-primary)] hover:bg-white/50"
+          className="flex w-full items-center gap-2 px-4 py-2 text-left text-[9px] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]"
         >
           Go to artist
         </button>
         <button
           onClick={handleGoToAlbum}
-          className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-[var(--color-text-primary)] hover:bg-white/50"
+          className="flex w-full items-center gap-2 px-4 py-2 text-left text-[9px] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]"
         >
           Go to album
         </button>
 
         {playlistId && (
           <>
-            <div className="my-1 border-t border-white/30" />
+            <div className="my-1 border-t border-[var(--color-border)]" />
             <button
               onClick={handleRemove}
-              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-500 hover:bg-white/50"
+              className="flex w-full items-center gap-2 px-4 py-2 text-left text-[9px] text-red-500 hover:bg-[var(--color-surface-hover)]"
             >
               Remove from playlist
             </button>

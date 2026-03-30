@@ -42,7 +42,7 @@ export function PlayerBar({ playback, onToggleMode, onOpenDevices, onOpenNowPlay
             <SkipBack size={16} strokeLinecap="square" strokeLinejoin="miter" />
           </button>
           <button onClick={playback.togglePlay}
-            className="flex h-10 w-10 items-center justify-center bg-[var(--theme-accent)] text-white shadow-md transition-all hover:scale-105">
+            className="flex h-10 w-10 items-center justify-center bg-[var(--theme-accent)] text-white shadow-[2px_2px_0_var(--theme-shadow)] transition-all hover:scale-105">
             {isPlaying
               ? <Pause size={20} fill="white" stroke="white" strokeLinecap="square" strokeLinejoin="miter" />
               : <Play size={20} fill="white" stroke="white" strokeLinecap="square" strokeLinejoin="miter" />}

@@ -98,9 +98,9 @@ export function PlaylistDetailView() {
       <button
         onClick={goBack}
         aria-label="Go back"
-        className="flex w-fit items-center text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
+        className="flex w-fit items-center gap-2 text-[9px] text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
       >
-        ← Back
+        <span className="text-[14px]">←</span> Back
       </button>
       <div className="flex gap-6">
         {imageUrl && <img src={imageUrl} alt={playlist.name} className="glow h-48 w-48 shrink-0 rounded-2xl object-cover" />}
@@ -112,7 +112,7 @@ export function PlaylistDetailView() {
           <div className="mt-2 flex items-center gap-3">
             <button
               onClick={() => playPlaylist()}
-              className="w-fit rounded-full bg-[var(--theme-accent)] px-6 py-2 text-sm font-medium text-white shadow-md transition-all hover:scale-105"
+              className="w-fit bg-[var(--theme-accent)] px-6 py-2 text-[9px] font-medium text-white shadow-[2px_2px_0_var(--theme-shadow)] transition-all hover:scale-105"
             >
               ▶ Play
             </button>
@@ -120,13 +120,13 @@ export function PlaylistDetailView() {
               <>
                 <button
                   onClick={() => setShowRename(true)}
-                  className="w-fit rounded-full border border-[var(--theme-accent)] px-4 py-2 text-sm font-medium text-[var(--theme-accent)] transition-all hover:bg-[var(--theme-accent)]/10"
+                  className="w-fit border border-[var(--theme-accent)] px-4 py-2 text-[9px] font-medium text-[var(--theme-accent)] transition-all hover:bg-[var(--theme-accent)]/10"
                 >
                   Rename
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="w-fit rounded-full border border-red-400 px-4 py-2 text-sm font-medium text-red-500 transition-all hover:bg-red-50"
+                  className="w-fit border border-red-400 px-4 py-2 text-[9px] font-medium text-red-500 transition-all hover:bg-red-50"
                 >
                   Delete
                 </button>
@@ -152,7 +152,7 @@ export function PlaylistDetailView() {
           <button
             onClick={loadMore}
             disabled={loadingMore}
-            className="rounded-full bg-white/30 px-6 py-2 text-sm text-[var(--color-text-secondary)] transition-all hover:bg-white/50 disabled:opacity-50"
+            className="border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-2 text-[9px] text-[var(--color-text-secondary)] transition-all hover:bg-[var(--color-surface-hover)] disabled:opacity-50"
           >
             {loadingMore ? "Loading..." : "Load 50 more"}
           </button>

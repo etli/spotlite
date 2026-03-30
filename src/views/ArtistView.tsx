@@ -61,9 +61,9 @@ export function ArtistView() {
       <button
         onClick={goBack}
         aria-label="Go back"
-        className="flex w-fit items-center text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
+        className="flex w-fit items-center gap-2 text-[9px] text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
       >
-        ← Back
+        <span className="text-[14px]">←</span> Back
       </button>
       <div className="flex items-end gap-6">
         {imageUrl && <img src={imageUrl} alt={artist.name} className="glow h-48 w-48 shrink-0 rounded-full object-cover" />}
@@ -71,7 +71,7 @@ export function ArtistView() {
           <h1 className="text-4xl font-bold text-[var(--color-text-primary)]">{artist.name}</h1>
           <button
             onClick={toggleFollow}
-            className="w-fit rounded-full border border-[var(--theme-accent)] px-4 py-1.5 text-sm font-medium text-[var(--theme-accent)] transition-all hover:bg-[var(--theme-accent)]/10"
+            className="w-fit border border-[var(--theme-accent)] px-4 py-1.5 text-[9px] font-medium text-[var(--theme-accent)] transition-all hover:bg-[var(--theme-accent)]/10"
           >
             {following ? "Following ✓" : "Follow"}
           </button>
