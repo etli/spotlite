@@ -43,3 +43,21 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--theme-primary); }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-border); }
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  background: var(--theme-accent);
+  border-radius: 0;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  background: var(--theme-accent);
+  border-radius: 0;
+  border: none;
+  cursor: pointer;
+}

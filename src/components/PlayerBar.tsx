@@ -10,6 +10,8 @@ interface PlayerBarProps {
     previousTrack: () => void;
     seek: (ms: number) => void;
     setVolume: (vol: number) => void;
+    toggleShuffle: () => void;
+    toggleRepeat: () => void;
   };
   onToggleMode: () => void;
   onOpenDevices?: () => void;
@@ -35,7 +37,7 @@ export function PlayerBar({ playback, onToggleMode, onOpenDevices, onOpenNowPlay
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => {}} className={`transition-opacity ${shuffleState ? "opacity-100" : "opacity-40"} hover:opacity-80`}>
+          <button onClick={playback.toggleShuffle} className={`transition-opacity ${shuffleState ? "opacity-100" : "opacity-40"} hover:opacity-80`}>
             <Shuffle size={16} strokeLinecap="square" strokeLinejoin="miter" />
           </button>
           <button onClick={playback.previousTrack} className="transition-opacity hover:opacity-70">
@@ -50,7 +52,7 @@ export function PlayerBar({ playback, onToggleMode, onOpenDevices, onOpenNowPlay
           <button onClick={playback.nextTrack} className="transition-opacity hover:opacity-70">
             <SkipForward size={16} strokeLinecap="square" strokeLinejoin="miter" />
           </button>
-          <button onClick={() => {}} className={`transition-opacity ${repeatState !== "off" ? "opacity-100" : "opacity-40"} hover:opacity-80`}>
+          <button onClick={playback.toggleRepeat} className={`transition-opacity ${repeatState !== "off" ? "opacity-100" : "opacity-40"} hover:opacity-80`}>
             {repeatState === "track"
               ? <Repeat1 size={16} strokeLinecap="square" strokeLinejoin="miter" />
               : <Repeat size={16} strokeLinecap="square" strokeLinejoin="miter" />}

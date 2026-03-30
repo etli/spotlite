@@ -19,7 +19,7 @@ import { ArtistView } from "./views/ArtistView";
 import { usePlayerStore } from "./store/player-store";
 import { useRemotePolling } from "./hooks/use-remote-polling";
 
-function AppLayout({ playback }: { playback: ReturnType<typeof usePlayback> }) {
+function AppLayout({ playback, onToggleMode }: { playback: ReturnType<typeof usePlayback>; onToggleMode: () => void }) {
   const [showDevices, setShowDevices] = useState(false);
   const [showNowPlaying, setShowNowPlaying] = useState(false);
   const { devices, transferPlayback } = useDevices();
@@ -46,7 +46,7 @@ function AppLayout({ playback }: { playback: ReturnType<typeof usePlayback> }) {
         )}
         <PlayerBar
           playback={playback}
-          onToggleMode={() => {}}
+          onToggleMode={onToggleMode}
           onOpenDevices={() => setShowDevices(!showDevices)}
           onOpenNowPlaying={() => setShowNowPlaying(true)}
         />
@@ -73,7 +73,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<AppLayout playback={playback} />}>
+        <Route element={<AppLayout playback={playback} onToggleMode={() => setMiniMode(true)} />}>
           <Route path="/" element={<LibraryView />} />
           <Route path="/liked" element={<LikedSongsView />} />
           <Route path="/playlist/:id" element={<PlaylistDetailView />} />

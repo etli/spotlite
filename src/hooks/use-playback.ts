@@ -1,6 +1,7 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useMemo } from "react";
 import { useAuthStore } from "../store/auth-store";
 import { usePlayerStore } from "../store/player-store";
+import { createSpotifyApi } from "../lib/spotify-api";
 import type { SpotifyTrack } from "../types/spotify";
 
 const DEVICE_NAME = "Spotlite";
@@ -15,6 +16,14 @@ export function usePlayback() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const playerRef = useRef<SpotifyPlayer | null>(null);
   const deviceIdRef = useRef<string | null>(null);
+
+  const api = useMemo(
+    () => createSpotifyApi(
+      () => useAuthStore.getState().accessToken,
+      () => useAuthStore.getState().logout(),
+    ),
+    [],
+  );
 
   useEffect(() => {
     if (!accessToken) return;
@@ -110,6 +119,32 @@ export function usePlayback() {
     usePlayerStore.getState().setVolume(vol);
   }, []);
 
+  const toggleShuffle = useCallback(async () => {
+    const { shuffleState, activeDeviceId } = usePlayerStore.getState();
+    const params: Record<string, string> = { state: String(!shuffleState) };
+    if (activeDeviceId) params.device_id = activeDeviceId;
+    try {
+      await api.put("/v1/me/player/shuffle", undefined, params);
+      usePlayerStore.getState().setShuffle(!shuffleState);
+    } catch (err) {
+      console.error("Failed to toggle shuffle:", err);
+    }
+  }, [api]);
+
+  const toggleRepeat = useCallback(async () => {
+    const { repeatState, activeDeviceId } = usePlayerStore.getState();
+    const nextRepeat = { off: "context", context: "track", track: "off" } as const;
+    const next = nextRepeat[repeatState];
+    const params: Record<string, string> = { state: next };
+    if (activeDeviceId) params.device_id = activeDeviceId;
+    try {
+      await api.put("/v1/me/player/repeat", undefined, params);
+      usePlayerStore.getState().setRepeat(next);
+    } catch (err) {
+      console.error("Failed to toggle repeat:", err);
+    }
+  }, [api]);
+
   return {
     deviceId: deviceIdRef.current,
     togglePlay,
@@ -117,5 +152,7 @@ export function usePlayback() {
     previousTrack,
     seek,
     setVolume,
+    toggleShuffle,
+    toggleRepeat,
   };
 }

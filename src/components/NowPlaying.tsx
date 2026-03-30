@@ -8,6 +8,8 @@ interface NowPlayingProps {
     nextTrack: () => void;
     previousTrack: () => void;
     seek: (ms: number) => void;
+    toggleShuffle: () => void;
+    toggleRepeat: () => void;
   };
   onClose: () => void;
 }
@@ -33,7 +35,7 @@ export function NowPlaying({ playback, onClose }: NowPlayingProps) {
         <ProgressBar progressMs={progressMs} durationMs={durationMs} onSeek={playback.seek} />
       </div>
       <div className="mt-6 flex items-center gap-6">
-        <button className={`transition-opacity ${shuffleState ? "opacity-100" : "opacity-40"}`}>
+        <button onClick={playback.toggleShuffle} className={`transition-opacity ${shuffleState ? "opacity-100" : "opacity-40"} hover:opacity-80`}>
           <Shuffle size={18} strokeLinecap="square" strokeLinejoin="miter" />
         </button>
         <button onClick={playback.previousTrack} className="transition-opacity hover:opacity-70">
@@ -48,7 +50,7 @@ export function NowPlaying({ playback, onClose }: NowPlayingProps) {
         <button onClick={playback.nextTrack} className="transition-opacity hover:opacity-70">
           <SkipForward size={22} strokeLinecap="square" strokeLinejoin="miter" />
         </button>
-        <button className={`transition-opacity ${repeatState !== "off" ? "opacity-100" : "opacity-40"}`}>
+        <button onClick={playback.toggleRepeat} className={`transition-opacity ${repeatState !== "off" ? "opacity-100" : "opacity-40"} hover:opacity-80`}>
           {repeatState === "track"
             ? <Repeat1 size={18} strokeLinecap="square" strokeLinejoin="miter" />
             : <Repeat size={18} strokeLinecap="square" strokeLinejoin="miter" />}
