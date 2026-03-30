@@ -7,11 +7,13 @@ export const SCOPES = [
   "user-follow-read",
   "user-follow-modify",
   "playlist-read-private",
+  "playlist-read-collaborative",
   "playlist-modify-public",
   "playlist-modify-private",
   "streaming",
   "user-read-private",
   "user-read-email",
+  "user-read-recently-played",
 ];
 
 export function generateCodeVerifier(): string {

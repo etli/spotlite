@@ -101,3 +101,14 @@ export interface SpotifyUser {
   display_name: string | null;
   images: SpotifyImage[];
 }
+
+export interface SpotifyPlayContext {
+  type: "artist" | "playlist" | "album";
+  uri: string;
+}
+
+export interface SpotifyPlayHistory {
+  track: SpotifyTrack;
+  played_at: string; // ISO 8601
+  context: SpotifyPlayContext | null;
+}

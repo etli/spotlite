@@ -86,3 +86,13 @@ describe("refreshAccessToken", () => {
     expect(result).toEqual(mockResponse);
   });
 });
+
+describe("SCOPES", () => {
+  it("includes playlist-read-collaborative", () => {
+    expect(SCOPES).toContain("playlist-read-collaborative");
+  });
+
+  it("includes user-read-recently-played", () => {
+    expect(SCOPES).toContain("user-read-recently-played");
+  });
+});
