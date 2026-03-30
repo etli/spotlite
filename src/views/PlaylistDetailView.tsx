@@ -23,6 +23,7 @@ export function PlaylistDetailView() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [showRename, setShowRename] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const userId = useAuthStore((s) => s.userId);
   const { menuState, handleContextMenu, closeMenu } = useTrackContextMenu({ playlistId: id });
@@ -43,7 +44,16 @@ export function PlaylistDetailView() {
         setTracks(data.items.filter((item) => item.item != null));
         setFetchedOffset(data.items.length);
         setHasMore(data.next !== null);
-      }).catch(() => {});
+      })
+      .catch((err) => {
+        const statusMatch = /Spotify API error: (\d+)/.exec((err as Error).message);
+        const status = statusMatch ? parseInt(statusMatch[1], 10) : 0;
+        setFetchError(
+          status === 403
+            ? "This playlist isn't accessible."
+            : "Couldn't load tracks. Please try again.",
+        );
+      });
   }, [id, api]);
 
   useEffect(() => {
@@ -148,19 +158,23 @@ export function PlaylistDetailView() {
           </div>
         </div>
       </div>
-      <div className="flex flex-col">
-        {tracks.map((item, i) => item.item && (
-          <TrackRow
-            key={`${item.item.id}-${i}`}
-            track={item.item}
-            index={i}
-            isPlaying={currentTrack?.id === item.item.id}
-            onPlay={() => playPlaylist(item.item!.uri)}
-            onContextMenu={handleContextMenu}
-          />
-        ))}
-      </div>
-      {hasMore && (
+      {fetchError ? (
+        <p className="py-4 text-sm text-[var(--color-text-secondary)]">{fetchError}</p>
+      ) : (
+        <div className="flex flex-col">
+          {tracks.map((item, i) => item.item && (
+            <TrackRow
+              key={`${item.item.id}-${i}`}
+              track={item.item}
+              index={i}
+              isPlaying={currentTrack?.id === item.item.id}
+              onPlay={() => playPlaylist(item.item!.uri)}
+              onContextMenu={handleContextMenu}
+            />
+          ))}
+        </div>
+      )}
+      {!fetchError && hasMore && (
         <div className="flex justify-center py-2">
           <button
             onClick={loadMore}
