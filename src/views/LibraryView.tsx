@@ -5,17 +5,19 @@ import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { AlbumCard } from "../components/AlbumCard";
 import { CreatePlaylistModal } from "../components/CreatePlaylistModal";
-import type { SpotifyPlaylist, SpotifyAlbumSimplified, SpotifyArtist, SpotifyPaginated } from "../types/spotify";
+import { buildPlayedAtMaps } from "../lib/recently-played";
+import type { SpotifyPlaylist, SpotifyAlbumSimplified, SpotifyArtist, SpotifyPaginated, SpotifyPlayHistory } from "../types/spotify";
 
 type Tab = "playlists" | "albums" | "artists";
 
 export function LibraryView() {
   const [activeTab, setActiveTab] = useState<Tab>("playlists");
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
-  const [albums, setAlbums] = useState<SpotifyAlbumSimplified[]>([]);
-  const [artists, setArtists] = useState<SpotifyArtist[]>([]);
+  const [rawPlaylists, setRawPlaylists] = useState<SpotifyPlaylist[]>([]);
+  const [rawAlbums, setRawAlbums] = useState<{ album: SpotifyAlbumSimplified; added_at: string }[]>([]);
+  const [rawArtists, setRawArtists] = useState<SpotifyArtist[]>([]);
   const [likedCount, setLikedCount] = useState<number | null>(null);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<SpotifyPlayHistory[]>([]);
 
   const api = useMemo(
     () => createSpotifyApi(
@@ -26,26 +28,69 @@ export function LibraryView() {
   );
 
   useEffect(() => {
+    api.get<{ items: SpotifyPlayHistory[] }>("/v1/me/player/recently-played", { limit: "50" })
+      .then((data) => setRecentlyPlayed(data.items))
+      .catch(() => {}); // degrades gracefully if scope is missing on existing session
+  }, [api]);
+
+  useEffect(() => {
     const controller = new AbortController();
     const { signal } = controller;
     const ignore = (err: unknown) => { if ((err as { name?: string }).name !== "AbortError") console.error(err); };
 
     if (activeTab === "playlists") {
       api.get<SpotifyPaginated<SpotifyPlaylist>>("/v1/me/playlists", { limit: "50" }, signal)
-        .then((data) => setPlaylists(data.items.filter((pl) => pl != null))).catch(ignore);
+        .then((data) => setRawPlaylists(data.items.filter((pl) => pl != null))).catch(ignore);
       if (likedCount === null) {
         api.get<SpotifyPaginated<unknown>>("/v1/me/tracks", { limit: "1" }, signal)
           .then((data) => setLikedCount(data.total)).catch(ignore);
       }
     } else if (activeTab === "albums") {
-      api.get<SpotifyPaginated<{ album: SpotifyAlbumSimplified }>>("/v1/me/albums", { limit: "50" }, signal)
-        .then((data) => setAlbums(data.items.map((i) => i.album))).catch(ignore);
+      api.get<SpotifyPaginated<{ album: SpotifyAlbumSimplified; added_at: string }>>("/v1/me/albums", { limit: "50" }, signal)
+        .then((data) => setRawAlbums(data.items)).catch(ignore);
     } else if (activeTab === "artists") {
       api.get<{ artists: SpotifyPaginated<SpotifyArtist> }>("/v1/me/following", { type: "artist", limit: "50" }, signal)
-        .then((data) => setArtists(data.artists.items)).catch(ignore);
+        .then((data) => setRawArtists(data.artists.items)).catch(ignore);
     }
     return () => controller.abort();
   }, [activeTab, api]);
+
+  const playedAtMaps = useMemo(() => buildPlayedAtMaps(recentlyPlayed), [recentlyPlayed]);
+
+  const playlists = useMemo(() =>
+    [...rawPlaylists].sort((a, b) => {
+      const aTime = playedAtMaps.playlists.get(a.uri)?.getTime() ?? 0;
+      const bTime = playedAtMaps.playlists.get(b.uri)?.getTime() ?? 0;
+      return bTime - aTime;
+    }),
+    [rawPlaylists, playedAtMaps]
+  );
+
+  const albums = useMemo(() =>
+    [...rawAlbums]
+      .sort((a, b) => {
+        const aTime = Math.max(
+          new Date(a.added_at).getTime(),
+          playedAtMaps.albums.get(a.album.uri)?.getTime() ?? 0,
+        );
+        const bTime = Math.max(
+          new Date(b.added_at).getTime(),
+          playedAtMaps.albums.get(b.album.uri)?.getTime() ?? 0,
+        );
+        return bTime - aTime;
+      })
+      .map((i) => i.album),
+    [rawAlbums, playedAtMaps]
+  );
+
+  const artists = useMemo(() =>
+    [...rawArtists].sort((a, b) => {
+      const aTime = playedAtMaps.artists.get(a.id)?.getTime() ?? 0;
+      const bTime = playedAtMaps.artists.get(b.id)?.getTime() ?? 0;
+      return bTime - aTime;
+    }),
+    [rawArtists, playedAtMaps]
+  );
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "playlists", label: "Playlists" },
@@ -112,10 +157,11 @@ export function LibraryView() {
           ))}
         </div>
       )}
+
       {showCreateModal && (
         <CreatePlaylistModal
           onCreated={(playlist) => {
-            setPlaylists((prev) => [playlist, ...prev]);
+            setRawPlaylists((prev) => [playlist, ...prev]);
             setShowCreateModal(false);
           }}
           onCancel={() => setShowCreateModal(false)}
