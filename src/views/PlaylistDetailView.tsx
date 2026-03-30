@@ -38,6 +38,7 @@ export function PlaylistDetailView() {
 
   useEffect(() => {
     if (!id) return;
+    setFetchError(null);
     api.get<SpotifyPlaylist>(`/v1/playlists/${id}`).then(setPlaylist).catch(() => {});
     api.get<SpotifyPaginated<SpotifyPlaylistItem>>(`/v1/playlists/${id}/items`, { limit: "50" })
       .then((data) => {
