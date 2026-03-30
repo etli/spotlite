@@ -20,16 +20,16 @@ export function TrackRow({ track, index, isPlaying, onPlay, onContextMenu }: Tra
     <button
       onClick={onPlay}
       onContextMenu={onContextMenu ? (e) => { e.preventDefault(); onContextMenu(track, e); } : undefined}
-      className={`group flex w-full items-center gap-4 rounded-xl px-3 py-2.5 text-left transition-all hover:bg-white/30 ${
+      className={`group flex w-full items-center gap-4 px-3 py-2.5 text-left transition-all hover:bg-[var(--color-surface-hover)] ${
         isPlaying ? "bg-[var(--theme-accent)]/10" : ""
       }`}>
-      <span className="w-6 text-center text-sm text-[var(--color-text-muted)] group-hover:hidden">{index + 1}</span>
-      <span className="hidden w-6 text-center text-sm group-hover:block">▶</span>
+      <span className="w-6 text-center text-[8px] text-[var(--color-text-muted)] group-hover:hidden">{index + 1}</span>
+      <span className="hidden w-6 text-center text-[8px] group-hover:block">▶</span>
       <div className="min-w-0 flex-1">
-        <p className={`truncate text-sm ${isPlaying ? "font-medium text-[var(--theme-accent)]" : "text-[var(--color-text-primary)]"}`}>{track.name}</p>
-        <p className="truncate text-xs text-[var(--color-text-secondary)]">{track.artists.map((a) => a.name).join(", ")}</p>
+        <p className={`truncate text-[9px] ${isPlaying ? "font-medium text-[var(--theme-accent)]" : "text-[var(--color-text-primary)]"}`}>{track.name}</p>
+        <p className="mt-0.5 truncate text-[8px] text-[var(--color-text-secondary)]">{track.artists.map((a) => a.name).join(", ")}</p>
       </div>
-      <span className="text-xs text-[var(--color-text-muted)]">{formatDuration(track.duration_ms)}</span>
+      <span className="text-[8px] text-[var(--color-text-muted)]">{formatDuration(track.duration_ms)}</span>
     </button>
   );
 }
