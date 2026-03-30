@@ -7,7 +7,7 @@ export function LoginView({ onLogin }: LoginViewProps) {
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg)]">
       <div className="flex flex-col items-center gap-8 border border-[var(--color-border)] bg-[var(--color-surface)] p-12 shadow-[2px_2px_0_var(--theme-shadow)]">
         <div className="flex flex-col items-center gap-3">
-          <h1 className="text-[18px] text-[var(--color-text-primary)]">✦ spotlite</h1>
+          <h1 className="text-[18px] text-[var(--color-text-primary)]"><span aria-hidden="true">✦ </span>spotlite</h1>
           <p className="text-[8px] text-[var(--color-text-secondary)]">your music, simplified</p>
         </div>
         <button

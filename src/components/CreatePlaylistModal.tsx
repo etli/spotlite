@@ -47,7 +47,7 @@ export function CreatePlaylistModal({
       onClick={onCancel}
     >
       <form
-        className="w-80 border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-[2px_2px_0_var(--theme-shadow)]"
+        className="glass-panel w-80 p-6"
         onClick={(e) => e.stopPropagation()}
         onSubmit={handleSubmit}
       >
