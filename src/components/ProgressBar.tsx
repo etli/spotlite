@@ -47,12 +47,21 @@ export function ProgressBar({ progressMs, durationMs, onSeek }: ProgressBarProps
   );
 
   return (
-    <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+    <div className="flex items-center gap-2 text-[7px] text-[var(--color-text-muted)]">
       <span className="w-10 text-right">{formatTime(displayMs)}</span>
-      <div ref={barRef} className="group relative h-1.5 flex-1 cursor-pointer rounded-full bg-white/30" onClick={handleClick}>
-        <div className="absolute left-0 top-0 h-full rounded-full bg-[var(--theme-accent)]" style={{ width: `${percent}%` }} />
-        <div className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white opacity-0 shadow-md transition-opacity group-hover:opacity-100"
-          style={{ left: `${percent}%`, marginLeft: "-6px" }} />
+      <div
+        ref={barRef}
+        className="group relative h-1.5 flex-1 cursor-pointer border border-[var(--color-border)] bg-[var(--color-surface-hover)]"
+        onClick={handleClick}
+      >
+        <div
+          className="absolute left-0 top-0 h-full bg-[var(--theme-primary)]"
+          style={{ width: `${percent}%` }}
+        />
+        <div
+          className="absolute top-1/2 h-3 w-3 -translate-y-1/2 bg-[var(--color-text-primary)] opacity-0 transition-opacity group-hover:opacity-100"
+          style={{ left: `${percent}%`, marginLeft: "-6px" }}
+        />
       </div>
       <span className="w-10">{formatTime(durationMs)}</span>
     </div>
