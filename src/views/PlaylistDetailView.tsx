@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import ReactDOM from "react-dom";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { MoreHorizontal } from "lucide-react";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
@@ -14,11 +14,6 @@ import type { SpotifyPlaylist, SpotifyPlaylistItem, SpotifyPaginated } from "../
 export function PlaylistDetailView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
-  const goBack = () => {
-    if (location.key === "default") navigate("/");
-    else navigate(-1);
-  };
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const actionsMenuRef = useRef<HTMLDivElement>(null);
   const [playlist, setPlaylist] = useState<SpotifyPlaylist | null>(null);
@@ -109,20 +104,13 @@ export function PlaylistDetailView() {
 
   return (
     <div className="flex flex-col gap-6">
-      <button
-        onClick={goBack}
-        aria-label="Go back"
-        className="flex w-fit items-center gap-2 text-[9px] text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
-      >
-        <span className="text-[14px]">←</span> Back
-      </button>
       <div className="flex gap-6">
         {imageUrl && <img src={imageUrl} alt={playlist.name} className="glow h-48 w-48 shrink-0 object-cover" />}
         <div className="flex flex-col justify-end gap-2">
           <p className="text-xs uppercase tracking-wider text-[var(--color-text-muted)]">Playlist</p>
           <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">{playlist.name}</h1>
           <p className="text-sm text-[var(--color-text-secondary)]">{playlist.owner?.display_name} · {playlist.items?.total ?? tracks.length} tracks</p>
-          {playlist.description && <p className="text-xs text-[var(--color-text-muted)]">{playlist.description}</p>}
+          {playlist.description && playlist.description !== "null" && <p className="text-xs text-[var(--color-text-muted)]">{playlist.description}</p>}
           <div className="mt-2 flex items-center gap-3">
             <button
               onClick={() => playPlaylist()}

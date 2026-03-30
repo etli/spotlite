@@ -1,21 +1,15 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { usePlayerStore } from "../store/player-store";
 import { TrackRow } from "../components/TrackRow";
 import { TrackContextMenu } from "../components/TrackContextMenu";
 import { useTrackContextMenu } from "../hooks/use-track-context-menu";
-import type { SpotifyAlbumFull } from "../types/spotify";
+import type { SpotifyAlbumFull, SpotifyTrack, SpotifyPaginated } from "../types/spotify";
 
 export function AlbumDetailView() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const goBack = () => {
-    if (location.key === "default") navigate("/");
-    else navigate(-1);
-  };
   const [album, setAlbum] = useState<SpotifyAlbumFull | null>(null);
   const [saved, setSaved] = useState(false);
   const [extraTracks, setExtraTracks] = useState<SpotifyTrack[]>([]);
@@ -89,13 +83,6 @@ export function AlbumDetailView() {
 
   return (
     <div className="flex flex-col gap-6">
-      <button
-        onClick={goBack}
-        aria-label="Go back"
-        className="flex w-fit items-center gap-2 text-[9px] text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
-      >
-        <span className="text-[14px]">←</span> Back
-      </button>
       <div className="flex gap-6">
         {imageUrl && <img src={imageUrl} alt={album.name} className="glow h-48 w-48 shrink-0 object-cover" />}
         <div className="flex flex-col justify-end gap-2">

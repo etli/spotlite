@@ -34,13 +34,4 @@ describe("LikedSongsView", () => {
     );
     expect(screen.getByRole("heading", { name: "Liked Songs" })).toBeInTheDocument();
   });
-
-  it("renders a back button", () => {
-    render(
-      <MemoryRouter>
-        <LikedSongsView />
-      </MemoryRouter>
-    );
-    expect(screen.getByRole("button", { name: /go back/i })).toBeInTheDocument();
-  });
 });

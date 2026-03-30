@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { Heart } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { usePlayerStore } from "../store/player-store";
@@ -14,9 +13,12 @@ export function LikedSongsView() {
   const [total, setTotal] = useState<number | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
-  const navigate = useNavigate();
-  const location = useLocation();
   const { menuState, handleContextMenu, closeMenu } = useTrackContextMenu();
+
+  const handleRemoveTrack = (trackId: string) => {
+    setTracks((prev) => prev.filter((t) => t.id !== trackId));
+    setTotal((prev) => (prev !== null ? prev - 1 : prev));
+  };
 
   const api = useMemo(
     () => createSpotifyApi(
@@ -34,11 +36,6 @@ export function LikedSongsView() {
       })
       .catch(() => {});
   }, [api]);
-
-  const goBack = () => {
-    if (location.key === "default") navigate("/");
-    else navigate(-1);
-  };
 
   const playTrack = async (uri: string) => {
     const deviceId = usePlayerStore.getState().activeDeviceId;
@@ -63,13 +60,6 @@ export function LikedSongsView() {
 
   return (
     <div className="flex flex-col gap-6">
-      <button
-        onClick={goBack}
-        aria-label="Go back"
-        className="flex w-fit items-center gap-2 text-[9px] text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
-      >
-        <span className="text-[14px]">←</span> Back
-      </button>
       <div className="flex gap-6">
         <div className="glow flex h-48 w-48 shrink-0 items-center justify-center border border-[var(--color-border)] bg-[var(--theme-primary)]">
           <Heart size={48} strokeLinecap="square" strokeLinejoin="miter" className="text-white" />
@@ -110,6 +100,8 @@ export function LikedSongsView() {
           x={menuState.x}
           y={menuState.y}
           onClose={closeMenu}
+          isLikedSongs
+          onRemoveTrack={() => handleRemoveTrack(menuState.track.id)}
         />
       )}
     </div>
