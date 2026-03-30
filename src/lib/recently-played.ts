@@ -16,18 +16,22 @@ export function buildPlayedAtMaps(history: SpotifyPlayHistory[]): PlayedAtMaps {
   const artists = new Map<string, Date>();
 
   for (const entry of history) {
+    if (!entry.track) continue; // skip podcast episodes which have no track
+
     const playedAt = new Date(entry.played_at);
 
-    if (!albums.has(entry.track.album.uri)) {
-      albums.set(entry.track.album.uri, playedAt);
+    const albumUri = (entry.track.album as { uri?: string } | undefined)?.uri;
+    if (albumUri && !albums.has(albumUri)) {
+      albums.set(albumUri, playedAt);
     }
 
-    if (entry.context?.type === "playlist" && !playlists.has(entry.context.uri)) {
-      playlists.set(entry.context.uri, playedAt);
+    const ctxUri = entry.context?.type === "playlist" ? entry.context.uri : undefined;
+    if (ctxUri && !playlists.has(ctxUri)) {
+      playlists.set(ctxUri, playedAt);
     }
 
-    for (const artist of entry.track.artists) {
-      if (!artists.has(artist.id)) {
+    for (const artist of entry.track.artists ?? []) {
+      if (artist.id && !artists.has(artist.id)) {
         artists.set(artist.id, playedAt);
       }
     }

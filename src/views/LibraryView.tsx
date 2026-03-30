@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Heart } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { AlbumCard } from "../components/AlbumCard";
@@ -11,7 +11,9 @@ import type { SpotifyPlaylist, SpotifyAlbumSimplified, SpotifyArtist, SpotifyPag
 type Tab = "playlists" | "albums" | "artists";
 
 export function LibraryView() {
-  const [activeTab, setActiveTab] = useState<Tab>("playlists");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab: Tab = (searchParams.get("tab") as Tab) ?? "playlists";
+  const setActiveTab = (tab: Tab) => setSearchParams(tab === "playlists" ? {} : { tab }, { replace: true });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [rawPlaylists, setRawPlaylists] = useState<SpotifyPlaylist[]>([]);
   const [rawAlbums, setRawAlbums] = useState<{ album: SpotifyAlbumSimplified; added_at: string }[]>([]);
@@ -30,7 +32,7 @@ export function LibraryView() {
   useEffect(() => {
     api.get<{ items: SpotifyPlayHistory[] }>("/v1/me/player/recently-played", { limit: "50" })
       .then((data) => setRecentlyPlayed(data.items))
-      .catch(() => {}); // degrades gracefully if scope is missing on existing session
+      .catch((err: unknown) => console.error("[LibraryView] recently-played fetch failed:", err));
   }, [api]);
 
   useEffect(() => {

@@ -23,6 +23,12 @@ export function PanelShell() {
   return (
     <div className="glass-panel flex h-full w-full flex-col overflow-hidden">
       <div className="shrink-0 flex items-center gap-3 px-4 pt-4 pb-2">
+        <button
+          onClick={handleTitleClick}
+          className="text-[11px] tracking-widest text-[var(--color-text-primary)] transition-opacity hover:opacity-70"
+        >
+          <span className="text-[15px]">✦</span> spotlite
+        </button>
         {showBack && (
           <button
             onClick={goBack}
@@ -32,12 +38,6 @@ export function PanelShell() {
             <span className="text-[14px]">←</span> Back
           </button>
         )}
-        <button
-          onClick={handleTitleClick}
-          className="text-[11px] tracking-widest text-[var(--color-text-primary)] transition-opacity hover:opacity-70"
-        >
-          <span className="text-[15px]">✦</span> spotlite
-        </button>
         <div className="ml-auto">
           <ToastContainer />
         </div>
