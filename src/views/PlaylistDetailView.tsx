@@ -51,6 +51,16 @@ export function PlaylistDetailView() {
       }).catch(() => {});
   }, [id, api]);
 
+  useEffect(() => {
+    if (!showActionsMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (actionsMenuRef.current && !actionsMenuRef.current.contains(e.target as Node))
+        setShowActionsMenu(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showActionsMenu]);
+
   if (!playlist) return null;
 
   const isOwned = playlist.owner.id === userId;
@@ -94,16 +104,6 @@ export function PlaylistDetailView() {
       setShowDeleteConfirm(false);
     }
   };
-
-  useEffect(() => {
-    if (!showActionsMenu) return;
-    const handler = (e: MouseEvent) => {
-      if (actionsMenuRef.current && !actionsMenuRef.current.contains(e.target as Node))
-        setShowActionsMenu(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [showActionsMenu]);
 
   const imageUrl = playlist.images?.[0]?.url;
 
