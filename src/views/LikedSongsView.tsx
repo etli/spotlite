@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Heart } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { usePlayerStore } from "../store/player-store";
@@ -15,6 +15,7 @@ export function LikedSongsView() {
   const [loadingMore, setLoadingMore] = useState(false);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const navigate = useNavigate();
+  const location = useLocation();
   const { menuState, handleContextMenu, closeMenu } = useTrackContextMenu();
 
   const api = useMemo(
@@ -35,7 +36,7 @@ export function LikedSongsView() {
   }, [api]);
 
   const goBack = () => {
-    if (window.history.length <= 1) navigate("/");
+    if (location.key === "default") navigate("/");
     else navigate(-1);
   };
 

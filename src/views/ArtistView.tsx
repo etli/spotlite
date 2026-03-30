@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { AlbumCard } from "../components/AlbumCard";
@@ -8,8 +8,9 @@ import type { SpotifyArtist, SpotifyAlbumSimplified, SpotifyPaginated } from "..
 export function ArtistView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const goBack = () => {
-    if (window.history.length <= 1) navigate("/");
+    if (location.key === "default") navigate("/");
     else navigate(-1);
   };
   const [artist, setArtist] = useState<SpotifyArtist | null>(null);
@@ -66,7 +67,7 @@ export function ArtistView() {
         <span className="text-[14px]">←</span> Back
       </button>
       <div className="flex items-end gap-6">
-        {imageUrl && <img src={imageUrl} alt={artist.name} className="glow h-48 w-48 shrink-0 rounded-full object-cover" />}
+        {imageUrl && <img src={imageUrl} alt={artist.name} className="glow h-48 w-48 shrink-0 object-cover" />}
         <div className="flex flex-col gap-2">
           <h1 className="text-4xl font-bold text-[var(--color-text-primary)]">{artist.name}</h1>
           <button

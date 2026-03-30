@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { createSpotifyApi } from "../lib/spotify-api";
 import { useAuthStore } from "../store/auth-store";
 import { usePlayerStore } from "../store/player-store";
@@ -11,8 +11,9 @@ import type { SpotifyAlbumFull } from "../types/spotify";
 export function AlbumDetailView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const goBack = () => {
-    if (window.history.length <= 1) navigate("/");
+    if (location.key === "default") navigate("/");
     else navigate(-1);
   };
   const [album, setAlbum] = useState<SpotifyAlbumFull | null>(null);
@@ -96,7 +97,7 @@ export function AlbumDetailView() {
         <span className="text-[14px]">←</span> Back
       </button>
       <div className="flex gap-6">
-        {imageUrl && <img src={imageUrl} alt={album.name} className="glow h-48 w-48 shrink-0 rounded-2xl object-cover" />}
+        {imageUrl && <img src={imageUrl} alt={album.name} className="glow h-48 w-48 shrink-0 object-cover" />}
         <div className="flex flex-col justify-end gap-2">
           <p className="text-xs uppercase tracking-wider text-[var(--color-text-muted)]">{album.album_type}</p>
           <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">{album.name}</h1>
